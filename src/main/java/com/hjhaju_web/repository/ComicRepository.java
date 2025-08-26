@@ -12,6 +12,5 @@ public interface ComicRepository extends JpaRepository<Comic, String> {
 
     Optional<Comic> findById(String id);
 
-    List<Comic> findAll();
 
 }
