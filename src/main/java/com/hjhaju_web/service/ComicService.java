@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,8 +20,11 @@ public class ComicService {
         return comicRepository.findAll();
     }
 
-    public Comic findById(String id) {
-        return comicRepository.findById(id).orElse(null);
+    public Optional<Comic> findById(String id) {
+        return comicRepository.findById(id);
     }
 
+    public int totalChapter(String id){
+         return comicRepository.findById(id).get().getChapter().size();
+    }
 }
