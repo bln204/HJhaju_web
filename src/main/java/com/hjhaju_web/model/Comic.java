@@ -1,12 +1,14 @@
 package com.hjhaju_web.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name="comics")
+@Data
 public class Comic {
     @Id
     private String id;

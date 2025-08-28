@@ -8,8 +8,5 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 public class UserController {
 
-    @GetMapping("/admin")
-    public String admin() {
-        return "admin/dashboard/show";
-    }
+
 }
