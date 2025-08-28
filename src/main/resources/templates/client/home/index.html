@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+Chào <span th:text="${user.name}"></span>! Bạn đã đăng nhập thành công. Role: <span th:text="${user.role}"></span>, Level: <span th:text="${user.level}"></span>
+<a href="/logout">Đăng xuất</a>
+<br>
+<a th:if="${user.role == 'USER' and user.level == 1}" href="/user/request-promotion">Yêu cầu thăng cấp</a>
+<a th:if="${user.role == 'ADMIN'}" href="/admin/promotions">Quản lý yêu cầu thăng cấp</a>
+</body>
+</html>
