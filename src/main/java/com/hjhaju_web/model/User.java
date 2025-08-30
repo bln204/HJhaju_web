@@ -7,38 +7,70 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
 
 @Entity
+@Table(name = "users")
 @Data
 public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String username;  // Email cho Google
+
+    @Column(nullable = false, unique = true)
+    private String username;
+
+    @Column(nullable = false)
     private String password;
-    private String name;
 
-    @Enumerated(EnumType.STRING)
-    private Role role = Role.USER;  // Mặc định USER
+    @Column(nullable = false, unique = true)
+    private String email;
 
-    private int level = 1;  // Mặc định level 1 cho USER
+    @Column
+    private String fullName;
+
+    @Column
+    private String role;
+
+    @Column
+    private String address;
+
+    @Column
+    private String phone;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String authority = "ROLE_" + role.name();
-        if (role == Role.USER) {
-            authority += "_LEVEL_" + level;
-        }
-        return List.of(new SimpleGrantedAuthority(authority));
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
     }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public String getPassword() {
+        return password;
+    }
+
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public String getUsername() {
+        return username;
+    }
+
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

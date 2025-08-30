@@ -1,71 +1,83 @@
 package com.hjhaju_web.service.user;
 
-import com.hjhaju_web.model.Role;
 import com.hjhaju_web.model.User;
-import com.hjhaju_web.repository.user.UserRepository;
+import com.hjhaju_web.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
 @Slf4j
 public class UserService implements UserDetailsService {
-    private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    private UserRepository userRepository;
 
-    public UserService(UserRepository userRepository,  BCryptPasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
-
-    public UserRepository getUserRepository() {
-        return userRepository;
-    }
-
-    public BCryptPasswordEncoder getPasswordEncoder() {
-        return passwordEncoder;
-    }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với email: " + email));
     }
 
-    public User registerUser(String username, String password, String name) {
-        Optional<User> existing = userRepository.findByUsername(username);
-        if (existing.isPresent()) {
-            throw new IllegalArgumentException("Username already exists");
+    @Transactional
+    public void registerUser(User user) throws Exception {
+        log.info("Attempting to register user: {}", user.getEmail());
+        // Kiểm tra dữ liệu đầu vào
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
+            log.error("Email is null or empty");
+            throw new IllegalArgumentException("Email không được để trống");
         }
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setName(name);
-        user.setRole(Role.USER);
-        user.setLevel(1);
-        log.info("Registered new user: {}", username);
-        return userRepository.save(user);
-    }
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            log.error("Password is null or empty");
+            throw new IllegalArgumentException("Mật khẩu không được để trống");
+        }
+        if (user.getUsername() == null || user.getUsername().isEmpty()) {
+            log.error("Username is null or empty");
+            throw new IllegalArgumentException("Tên người dùng không được để trống");
+        }
 
-    public User processOAuthUser(OAuth2User oAuth2User) {
-        String email = oAuth2User.getAttribute("email");
-        String name = oAuth2User.getAttribute("name");
-        return userRepository.findByUsername(email).orElseGet(() -> {
-            User newUser = new User();
-            newUser.setUsername(email);
-            newUser.setName(name);
-            newUser.setPassword("");  // No password for OAuth
-            newUser.setRole(Role.USER);
-            newUser.setLevel(1);
-            log.info("Registered new OAuth user: {}", email);
-            return userRepository.save(newUser);
-        });
+        // Kiểm tra email và username trùng lặp
+        Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
+        if (existingUser.isPresent()) {
+            log.error("Email already exists: {}", user.getEmail());
+            throw new IllegalArgumentException("Email đã tồn tại");
+        }
+        Optional<User> existingUsername = userRepository.findByUsername(user.getUsername());
+        if (existingUsername.isPresent()) {
+            log.error("Username already exists: {}", user.getUsername());
+            throw new IllegalArgumentException("Tên người dùng đã tồn tại");
+        }
+
+        // Mã hóa mật khẩu và gán vai trò
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole("USER");
+        log.info("Saving user: {}", user.getEmail());
+        try {
+            userRepository.save(user);
+            log.info("User saved successfully: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Failed to save user: {}", user.getEmail(), e);
+            throw new Exception("Lỗi khi lưu người dùng: " + e.getMessage(), e);
+        }
+    }
+    public User registerOrUpdateGoogleUser(String email, String fullName) {
+        User user = userRepository.findByEmail(email).orElse(new User());
+        user.setEmail(email);
+        user.setUsername(email);
+        user.setFullName(fullName);
+        user.setRole("USER");
+        if (user.getPassword() == null) {
+            user.setPassword(passwordEncoder.encode("google-auth-" + email));
+        }
+        return userRepository.save(user);
     }
 }
