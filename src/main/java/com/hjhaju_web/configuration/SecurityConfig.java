@@ -26,6 +26,13 @@ public class SecurityConfig {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+
+
+    @Bean
+    public AuthenticationSuccessHandler myAuthenticationSuccessHandler() {
+        return new CustomSuccessHandler();
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -36,7 +43,7 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .successHandler(authenticationSuccessHandler())
+                        .successHandler(myAuthenticationSuccessHandler())
                         .permitAll()
                 )
                 .oauth2Login(oauth2 -> oauth2
@@ -60,17 +67,6 @@ public class SecurityConfig {
         return oidcUserService;
     }
 
-    @Bean
-    public AuthenticationSuccessHandler authenticationSuccessHandler() {
-        return (request, response, authentication) -> {
-            if (authentication.getAuthorities().stream()
-                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {
-                response.sendRedirect("/admin");
-            } else {
-                response.sendRedirect("/client");
-            }
-        };
-    }
 
     @Bean
     public AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
@@ -90,17 +86,10 @@ public class SecurityConfig {
                     user.setPassword(passwordEncoder.encode("google-auth-" + email));
                     userRepository.save(user);
                 }
-                // kiểm tra vai trò và chuyển đến controller
-                if (user.getRole().equals("ADMIN")) {
-                    response.sendRedirect("/admin");
-                } else {
-                    response.sendRedirect("/client");
-                }
+                    response.sendRedirect("/");
             } catch (Exception e) {
                 throw new RuntimeException("Lỗi khi xử lý người dùng OAuth2", e);
             }
         };
     }
-
-
 }
