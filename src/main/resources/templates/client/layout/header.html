@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang chủ</title>
+</head>
+<body>
+<div th:fragment="header">
+    <div class="navbar">
+        <div class="navbar-container">
+            <!-- Logo -->
+            <a class="logo" href="/home">
+                <img th:src="@{/image/logo.png}" alt="Logo">
+            </a>
+
+            <!-- Menu -->
+            <div class="menu">
+                <a href="/home">Trang Chủ</a>
+                <a href="#">Thể Loại</a>
+                <a href="#">Liên Hệ</a>
+            </div>
+
+            <!-- Search + Login -->
+            <div style="display: flex; align-items: center;">
+                <form th:action="@{/home/search}" method="get" class="search-container">
+                    <input type="text" id="searchBox" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm truyện..."
+                           autocomplete="off">
+                    <button type="submit" class="search-btn">Tìm</button>
+                    <ul id="suggestions"
+                        style="border:1px solid #ccc; max-width:250px; position:absolute; background:white; list-style:none; padding:5px; margin:0;">
+                    </ul>
+                </form>
+                <button class="login-btn">Đăng Nhập</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

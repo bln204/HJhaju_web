@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin")
-public class UserController {
+public class AdminController {
 
     private final UserService userService;
 
