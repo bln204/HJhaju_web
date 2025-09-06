@@ -24,7 +24,11 @@ public class ComicService {
         return comicRepository.findById(id);
     }
 
-    public int totalChapter(String id){
-         return comicRepository.findById(id).get().getChapter().size();
+    public Comic findBySlug(String slug) {
+        return this.comicRepository.findBySlug(slug);
+    }
+
+    public Comic save(Comic comic) {
+        return this.comicRepository.save(comic);
     }
 }

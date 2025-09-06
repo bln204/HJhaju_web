@@ -9,4 +9,6 @@ public interface ChapterDataRepository extends JpaRepository<Chapter_data, Long>
     Chapter_data save(Chapter_data chapter_data);
 
     List<Chapter_data> findByChapterId(String id);
+
+
 }
