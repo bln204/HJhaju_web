@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Login</title>
-
+    <title>Đăng nhập</title>
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -19,28 +18,39 @@
                 <div class="row justify-content-center">
                     <div class="col-lg-5">
                         <div class="card shadow-lg border-0 rounded-lg mt-5">
-                            <div class="card-header"><h3 class="text-center font-weight-light my-4">Login</h3></div>
+                            <div class="card-header"><h3 class="text-center font-weight-light my-4">Đăng nhập</h3></div>
                             <div class="card-body">
-                                <form>
+                                <!-- Thông báo đăng xuất thành công -->
+                                <div th:if="${param.logout}" class="alert alert-success">
+                                    Bạn đã đăng xuất thành công.
+                                </div>
+                                <!-- Thông báo lỗi đăng nhập -->
+                                <div th:if="${param.error}" class="alert alert-danger">
+                                    Đăng nhập thất bại. Vui lòng kiểm tra email và mật khẩu.
+                                </div>
+                                <form th:action="@{/login}" method="post">
                                     <div class="form-floating mb-3">
                                         <input class="form-control" name="username" id="inputEmail" type="email" placeholder="name@example.com" />
-                                        <label for="inputEmail">Email address</label>
+                                        <label for="inputEmail">Địa chỉ email</label>
                                     </div>
                                     <div class="form-floating mb-3">
-                                        <input name="password" class="form-control" id="inputPassword" type="password" placeholder="Password" />
-                                        <label for="inputPassword">Password</label>
+                                        <input name="password" class="form-control" id="inputPassword" type="password" placeholder="Mật khẩu" />
+                                        <label for="inputPassword">Mật khẩu</label>
                                     </div>
-
-<!--                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>-->
-
                                     <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
-                                        <a class="small" href="password.html">Forgot Password?</a>
-                                        <button style="background-color:#212529" class="btn text-white" href="index.html">Login</button>
+                                        <a class="small" href="password.html">Quên mật khẩu?</a>
+                                        <button style="background-color:#212529" class="btn text-white" type="submit">Đăng nhập</button>
                                     </div>
                                 </form>
+                                <div class="text-center mt-3">
+                                    <a th:href="${googleLoginUrl}" class="btn btn-light">
+                                        <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="Google logo">
+                                        Đăng nhập bằng Google
+                                    </a>
+                                </div>
                             </div>
                             <div class="card-footer text-center py-3">
-                                <div class="small"><a href="/register">Need an account? Register!</a></div>
+                                <div class="small"><a href="/register">Chưa có tài khoản? Đăng ký!</a></div>
                             </div>
                         </div>
                     </div>

@@ -2,9 +2,90 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Slider 3 Ảnh 1 Lần</title>
+    <link rel="stylesheet" th:href="@{/css/homeStyle.css}">
 </head>
 <body>
+<div class="container-slider">
+    <div th:replace="client/layout/header :: header"></div>
 
+    <div class="slider">
+        <div class="slide-wrapper">
+
+            <div class="background-blur"></div>
+
+            <div class="slide active">
+                <img src="/image/edit.png" alt="1">
+                <img src="/image/edit.png" alt="2">
+                <img src="/image/edit.png" alt="3">
+            </div>
+            <div class="slide">
+                <img src="/image/add.png" alt="4">
+                <img src="/image/add.png" alt="5">
+                <img src="/image/add.png" alt="6">
+            </div>
+            <div class="slide">
+                <img src="/image/view.png" alt="7">
+                <img src="/image/view.png" alt="8">
+                <img src="/image/view.png" alt="9">
+            </div>
+        </div>
+
+        <!-- Nút điều hướng -->
+        <button type="button" class="nav-btn prev" onclick="prevSlide()">❮</button>
+        <button type="button" class="nav-btn next" onclick="nextSlide()">❯</button>
+
+    </div>
+</div>
+
+
+<!--Truyện mới update -->
+<div class="container">
+    <h2 class="section-title">Cập Nhật Gần Đây</h2>
+    <div class="tabs">
+        <a href="#" class="tab active">Tất Cả</a>
+        <a href="#" class="tab">Đã Đọc</a>
+    </div>
+    <hr>
+</div>
+
+<div class="grid">
+    <div class="card" th:each="comic : ${comics}">
+        <img th:src="${comic.thumb_image}" alt="Truyện">
+        <div class="info">
+            <h3 th:text="${comic.name}"></h3>
+            <div class="meta">
+                👁 <span>1000</span> | 👍 <span>500</span> <br>
+<!--                ⏰ <span th:text="${comic.chapter}"></span>-->
+<!--                <span th:text="${comic.createdAt}"></span>-->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pagination" th:if="${totalPages > 0}">
+    <a th:if="${currentPage > 0}"
+       th:href="@{/(page=${currentPage - 1})}">«</a>
+
+    <a th:each="i : ${#numbers.sequence(0, (totalPages - 1))}"
+       th:href="@{/(page=${i})}"
+       th:text="${i + 1}"
+       th:classappend="${i == currentPage} ? 'active' : ''">
+    </a>
+
+    <a th:if="${currentPage < (totalPages - 1)}"
+       th:href="@{/(page=${currentPage + 1})}">»</a>
+</div>
+
+<hr>
+
+
+
+
+
+
+
+
+<script th:src="@{/js/home-poster.js}"></script>
 </body>
 </html>

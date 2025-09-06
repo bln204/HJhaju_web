@@ -49,7 +49,7 @@
                                     <td th:text="${user.id}"></td>
                                     <td th:text="${user.username}"></td>
                                     <td th:text="${user.email}" ></td>
-                                    <td th:text="${user.roles}"></td>
+                                    <td th:text="${user.role}"></td>
                                     <td>
                                         <a th:href="@{'/admin/edit/' + ${user.id}}">Edit</a>
                                         <a th:href="@{'/admin/delete/' + ${user.id}}">Delete</a>
