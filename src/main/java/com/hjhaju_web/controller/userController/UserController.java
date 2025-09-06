@@ -1,7 +1,7 @@
 package com.hjhaju_web.controller.userController;
 
 
-import com.hjhaju_web.service.user.UserService;
+import com.hjhaju_web.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
