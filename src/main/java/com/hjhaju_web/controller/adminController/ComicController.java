@@ -18,4 +18,5 @@ public class ComicController {
         model.addAttribute("comics", comicService.findAll());
         return "admin/comic/show";
     }
+
 }
