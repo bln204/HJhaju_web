@@ -1,28 +1,14 @@
 package com.hjhaju_web.controller.adminController;
 
-
-import com.hjhaju_web.service.UserService;
-import org.springframework.ui.Model;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequiredArgsConstructor
 @RequestMapping("/admin")
 public class AdminController {
 
-    private final UserService userService;
-
     @GetMapping
-    public String getHomePage() {
+    public String admin() {
         return "admin/dashboard/show";
-    }
-
-    @GetMapping("/user")
-    public String listUsers(Model model) {
-        model.addAttribute("users" , userService.findAll());
-        return "admin/user/show";
     }
 }

@@ -13,6 +13,8 @@ public interface ComicRepository extends JpaRepository<Comic, String> {
     Comic save(Comic comic);
 
     Page<Comic> findByNameContainingIgnoreCase(String name, Pageable pageable);
+    Optional<Comic> findById(String id);
+
 
     List<Comic> findByNameContainingIgnoreCase(String name);
 }

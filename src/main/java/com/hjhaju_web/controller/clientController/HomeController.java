@@ -4,6 +4,7 @@ package com.hjhaju_web.controller.clientController;
 import com.hjhaju_web.model.Comic;
 import com.hjhaju_web.service.ComicService;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -17,14 +18,20 @@ import java.util.List;
 public class HomeController {
     private final ComicService comicService;
 
-    @GetMapping("/home")
+    @GetMapping("/")
     public String listComics(Model model,
                               @RequestParam(defaultValue = "0") int page,
-                              @RequestParam(defaultValue = "20") int size) {
+                              @RequestParam(defaultValue = "20") int size,
+                             Authentication authentication) {
         Page<Comic> comicPage = comicService.getComic(page, size);
         model.addAttribute("comics", comicPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", comicPage.getTotalPages());
+
+
+        if (authentication != null) {
+            model.addAttribute("username", authentication.getName());
+        }
         return "client/home/show";
     }
 

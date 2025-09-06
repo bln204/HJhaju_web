@@ -40,7 +40,5 @@ public class ComicService {
         return comicRepository.findById(id);
     }
 
-    public int totalChapter(String id){
-         return comicRepository.findById(id).get().getChapter().size();
-    }
+
 }

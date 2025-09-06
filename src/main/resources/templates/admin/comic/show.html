@@ -53,6 +53,7 @@
                                 <td th:text="${comic.name}"></td>
                                 <td th:text="${comic.author}"></td>
                                 <td th:text="${comic.status}"></td>
+<<<<<<< HEAD
                                 <td th:text="${comic.chapter.size()}"></td>
                                 <td>
                                     <div class="d-flex">
@@ -60,6 +61,15 @@
                                            th:href="@{'/admin/details/' + ${comic.id}}"><img style="height:20px"
                                                                                              th:src="@{/image/view.png}"
                                                                                              alt=""></a>
+=======
+                                <td>5</td>
+                                <td>
+                                    <div class="d-flex">
+                                        <a style="display:inline-block; margin-right:10px;"
+                                            th:href="@{'/admin/details/' + ${comic.id}}"><img style="height:20px"
+                                                                                              th:src="@{/image/view.png}"
+                                                                                              alt=""></a>
+>>>>>>> f8a2e47dcae66923d5cd6b0739a88776df8a6321
                                         <a style="display:inline-block; margin-right:10px;"
                                            th:href="@{'/admin/edit/' + ${comic.id}}"><img
                                                 style="height:20px" th:src="@{/image/edit.png}" alt=""></a>

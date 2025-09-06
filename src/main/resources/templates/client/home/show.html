@@ -65,16 +65,16 @@
 
 <div class="pagination" th:if="${totalPages > 0}">
     <a th:if="${currentPage > 0}"
-       th:href="@{/home(page=${currentPage - 1})}">«</a>
+       th:href="@{/(page=${currentPage - 1})}">«</a>
 
     <a th:each="i : ${#numbers.sequence(0, (totalPages - 1))}"
-       th:href="@{/home(page=${i})}"
+       th:href="@{/(page=${i})}"
        th:text="${i + 1}"
        th:classappend="${i == currentPage} ? 'active' : ''">
     </a>
 
     <a th:if="${currentPage < (totalPages - 1)}"
-       th:href="@{/home(page=${currentPage + 1})}">»</a>
+       th:href="@{/(page=${currentPage + 1})}">»</a>
 </div>
 
 <hr>
