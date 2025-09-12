@@ -9,14 +9,28 @@
     <div class="navbar">
         <div class="navbar-container">
             <!-- Logo -->
-            <a class="logo" href="/home">
+            <a class="logo" href="/">
                 <img th:src="@{/image/logo.png}" alt="Logo">
             </a>
 
             <!-- Menu -->
             <div class="menu">
-                <a href="/home">Trang Chủ</a>
-                <a href="#">Thể Loại</a>
+                <a href="/">Trang Chủ</a>
+
+
+                <div class="dropdown">
+                    <button class="dropdown-btn">Thể Loại</button>
+                    <div class="dropdown-content">
+                        <div class="columns">
+                            <div th:each="category : ${categories}">
+                                <a th:href="@{/the-loai/{slug}(slug=${category.slug})}"
+                                   th:text="${category.name}"></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
                 <a href="#">Liên Hệ</a>
             </div>
 

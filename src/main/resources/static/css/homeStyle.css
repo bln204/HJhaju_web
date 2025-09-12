@@ -3,20 +3,23 @@ body {
     background: #0b1b2b;
     color: #fff;
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
+
 }
 
 
-
-/* Slider nằm dưới navbar */
 .container-slider {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+    z-index: 1  ;
+    position:relative;
+}
+
+.container-navbar {
     display: flex;
     justify-content: center;
     margin-top: 30px;
 }
-
-
 
 
 .slider {
@@ -46,7 +49,7 @@ body {
     background: url('../image/edit.png') center/cover no-repeat;
     filter: blur(20px) brightness(50%);
     z-index: 0;
-
+    pointer-events: none;
 
 }
 
@@ -123,7 +126,7 @@ body {
     width: 100%;       /* full background */
     background-color: #0f172a;
     color: white;
-    z-index: 1000;     /* đè lên slider */
+    z-index: 10;     /* đè lên slider */
 }
 
 /* Container bên trong navbar */
@@ -148,6 +151,8 @@ body {
     width: auto;
     height: 200px;
     margin: -200px 0;
+    position: relative;
+    z-index: 1;
 }
 
 /* Menu */
@@ -157,15 +162,26 @@ body {
     margin-right: 40px;
 }
 
-.menu a {
+.menu a ,
+.menu button {
     text-decoration: none;
     color: white;
     font-size: 16px;
 }
 
-.menu a:hover {
+.menu a:hover,
+.menu button:hover {
     color: #4da6ff;
 }
+
+.menu button {
+    border: none;
+    outline: none;
+    background: none; /* nếu bạn không muốn nền */
+}
+
+
+
 
 /* Search */
 .search-container {
@@ -283,6 +299,17 @@ hr {
     font-size: 16px;
     margin: 0 0 8px 0;
 }
+
+.info h3 a {
+    text-decoration: none;   /* bỏ gạch chân */
+    color: white;            /* chữ màu trắng */
+    transition: color 0.3s;  /* hiệu ứng mượt khi đổi màu */
+}
+
+.info h3 a:hover {
+    color: red;              /* khi hover đổi sang đỏ */
+}
+
 .meta {
     font-size: 12px;
     color: #aaa;
@@ -303,4 +330,50 @@ hr {
     background: red;
 }
 
+/* Container dropdown */
+.dropdown {
+    position: relative;
+    padding-bottom: 20px;
+
+}
+
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #111827;      /* màu nền tối (gần đen xanh) */
+    min-width: 500px;         /* chiều rộng */
+    border-radius: 8px;       /* bo góc */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    padding: 20px 25px;
+}
+
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+
+.dropdown-content .columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px 25px;
+}
+
+
+.dropdown-content a {
+    display: block;
+    color: #d1d5db;     /* chữ xám nhạt */
+    font-size: 15px;
+    text-decoration: none;
+    padding: 4px 0;
+    transition: color 0.2s, font-weight 0.2s;
+}
+
+.dropdown-content a:hover {
+    color: #ffffff;
+    font-weight: bold;
+}
 

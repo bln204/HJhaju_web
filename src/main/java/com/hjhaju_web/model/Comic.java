@@ -115,4 +115,5 @@ public class Comic {
     public void setChapter(List<Chapter> chapter) {
         this.chapter = chapter;
     }
+
 }
