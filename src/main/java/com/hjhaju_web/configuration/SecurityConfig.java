@@ -27,7 +27,6 @@ public class SecurityConfig {
     private PasswordEncoder passwordEncoder;
 
 
-
     @Bean
     public AuthenticationSuccessHandler myAuthenticationSuccessHandler() {
         return new CustomSuccessHandler();
@@ -37,7 +36,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login","/","/admin/**" ,"/register","/image/**", "/signup", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/login", "/", "/admin/**","/admin/comic/**", "/register", "/image/**", "/signup", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
@@ -86,7 +85,7 @@ public class SecurityConfig {
                     user.setPassword(passwordEncoder.encode("google-auth-" + email));
                     userRepository.save(user);
                 }
-                    response.sendRedirect("/");
+                response.sendRedirect("/");
             } catch (Exception e) {
                 throw new RuntimeException("Lỗi khi xử lý người dùng OAuth2", e);
             }
