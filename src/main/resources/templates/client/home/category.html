@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${category.name}"></title>
+    <link rel="stylesheet" th:href="@{/css/homeStyle.css}">
+
+    <style>
+        .title {
+            padding-top: 50px;
+        }
+
+        .category {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 11;
+
+        }
+    </style>
+</head>
+<body>
+<div class="container-slider">
+    <div th:replace="client/layout/header :: header"></div>
+</div>
+
+<div class="category" >
+    <h2 class="title" th:text="${category.name} "></h2>
+    <hr>
+</div>
+
+<div class="grid">
+    <div class="card" th:each="comic : ${comics}">
+        <a th:href="@{/{slug}(slug=${comic.slug})}"><img th:src="${comic.thumb_image}" alt="Tru yện"></a>
+        <div class="info">
+            <h3 th:text="${comic.name}"></h3>
+            <div class="meta">
+                👁 <span>1000</span> | 👍 <span>500</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--<div class="pagination" th:if="${totalPages > 0}">-->
+<!--    <a th:if="${currentPage > 0}"-->
+<!--       th:href="@{/(page=${currentPage - 1})}">«</a>-->
+
+<!--    <a th:each="i : ${#numbers.sequence(0, (totalPages - 1))}"-->
+<!--       th:href="@{/(page=${i})}"-->
+<!--       th:text="${i + 1}"-->
+<!--       th:classappend="${i == currentPage} ? 'active' : ''">-->
+<!--    </a>-->
+
+<!--    <a th:if="${currentPage < (totalPages - 1)}"-->
+<!--       th:href="@{/(page=${currentPage + 1})}">»</a>-->
+<!--</div>-->
+
+<script th:src="@{/js/home-poster.js}"></script>
+</body>
+</html>

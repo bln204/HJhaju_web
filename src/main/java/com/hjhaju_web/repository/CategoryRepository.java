@@ -12,4 +12,6 @@ public interface CategoryRepository extends JpaRepository<Category, String> {
     Category save(Category category);
 
     List<Category> findAll();
+
+    Category findBySlug(String slug);
 }

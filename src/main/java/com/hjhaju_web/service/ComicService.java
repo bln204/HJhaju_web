@@ -47,4 +47,13 @@ public class ComicService {
     public Comic save(Comic comic) {
         return this.comicRepository.save(comic);
     }
+
+    public List<Comic> findByCategorySlug(String slug) {
+        return comicRepository.findByCategorySlug(slug);
+     }
+
+//    public Comic getComicBySlug(String slug) {
+//        return comicRepository.findBySlug(slug)
+//                .orElseThrow(() -> new RuntimeException("Comic not found"));
+//    }
 }

@@ -1,5 +1,6 @@
 package com.hjhaju_web.repository;
 
+import com.hjhaju_web.model.Chapter;
 import com.hjhaju_web.model.Chapter_data;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
@@ -10,5 +11,8 @@ public interface ChapterDataRepository extends JpaRepository<Chapter_data, Long>
 
     List<Chapter_data> findByChapterId(String id);
 
+    List<Chapter_data> findAllByChapterOrderByIdAsc(Chapter chapter);
+
+    List<Chapter_data> findAllByChapterIdOrderByIdAsc(String chapterId);
 
 }

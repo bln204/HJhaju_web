@@ -6,8 +6,14 @@
     <link rel="stylesheet" th:href="@{/css/homeStyle.css}">
 </head>
 <body>
-<div class="container-slider">
+
+<!-- Banner -->
+
+<div class="container-navbar">
     <div th:replace="client/layout/header :: header"></div>
+</div>
+
+<div class="container-slider">
 
     <div class="slider">
         <div class="slide-wrapper">
@@ -48,9 +54,11 @@
 
 <div class="grid">
     <div class="card" th:each="comic : ${comics}">
-        <img th:src="${comic.thumb_image}" alt="Truyện">
+        <a th:href="@{/{slug}(slug=${comic.slug})}"> <img  th:src="${comic.thumb_image}" alt="Truyện"></a>
         <div class="info">
-            <h3 th:text="${comic.name}"></h3>
+            <h3 >
+                <a th:href="@{/comic/{slug}(slug=${comic.slug})}"  th:text="${comic.name}" > </a>
+            </h3>
             <div class="meta">
                 👁 <span>1000</span> | 👍 <span>500</span> <br>
 <!--                ⏰ <span th:text="${comic.chapter}"></span>-->

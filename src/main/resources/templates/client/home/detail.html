@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${comic.name}">Comic </title>
+<!--    <link rel="stylesheet" href="/css/comic-detail.css">-->
+    <link rel="stylesheet" th:href="@{/css/comicDetailStyle.css}">
+    <link rel="stylesheet" th:href="@{/css/homeStyle.css}">
+
+</head>
+<body>
+
+<div th:replace="client/layout/header :: header"></div>
+
+<!-- Thanh điều hướng -->
+<div class="breadcrumb">
+    <a href="/" class="home-link">Trang Chủ</a> /
+    <span class="comic-title" th:text="${comic.name}"></span>
+</div>
+
+<div class="comic-detail">
+
+    <!-- Thông tin chính -->
+    <div class="main-info">
+
+        <!-- Trái: ảnh -->
+        <div class="left">
+            <img th:src="${comic.thumb_image}" alt="Comic Image" class="comic-cover">
+        </div>
+
+        <!-- Giữa: nội dung chính -->
+        <div class="center">
+            <h1 class="title" th:text="${comic.name}"></h1>
+            <p class="description" th:text="${comic.description}">
+            </p>
+
+            <div class="rating">
+                ⭐⭐⭐⭐⭐ <span >5</span>
+                <span class="count">(<span >12</span> đánh giá)</span>
+            </div>
+
+            <div class="chapters-count">
+                <span th:text="${comic.chapter.size()}">6</span> Chap
+            </div>
+
+            <div class="actions">
+                <button class="btn yellow" >📖 Đọc ngay</button>
+                <button class="btn purple" >⭐ Theo dõi</button>
+                <button class="btn white"> 🔔 Thông báo</button>
+            </div>
+        </div>
+
+        <!-- Phải: thông tin phụ -->
+        <div class="right">
+            <p><span class="label">Tác giả:</span> <span class="value" th:text="${comic.author}">Updating</span></p>
+            <p><span class="label">Nhóm dịch:</span> <span class="value" >Đang cập nhật</span></p>
+            <p><span class="label">Trạng thái:</span> <span class="value" th:text="${comic.status}">Đang tiến hành</span></p>
+            <p><span class="label">Thể loại:</span>
+                <span th:each="cat, iter : ${comic.category}">
+                    <span class="value" th:text="${cat.name}"></span><span th:if="${!iter.last}">, </span>
+                </span>
+            </p>
+            <p><span class="label">Lượt xem:</span> <span class="value" >0</span></p>
+            <p><span class="label">Lượt theo dõi:</span> <span class="value" >0</span></p>
+        </div>
+
+    </div>
+
+    <div class="content-section">
+        <div class="chapters-list">
+            <h2>Danh sách chương</h2>
+            <table>
+                <thead>
+                <tr>
+                    <th>Số chương</th>
+                    <th>Cập nhật</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="chapter,iter : ${comic.chapter}" th:classappend="${iter.index} >= 10 ? 'hidden' : ''">
+                    <td colspan="2" class="chapter-row">
+                        <a th:href="@{/{slug}/chuong-{name}(slug=${comic.slug}, name=${chapter.name})}" class="chapter-link">
+                            <span class="chapter-name">Chương <span th:text="${chapter.name}"></span></span>
+                            <span class="chapter-time" >45 ngày trước</span>
+                        </a>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+            <div class="see-more-container">
+                <button id="seeMoreBtn">Hiện Tất Cả</button>
+            </div>
+        </div>
+
+        <div class="comments-section">
+            <h2>Bình luận</h2>
+            <div class="comments-box">
+                <p>Chưa có bình luận nào.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script th:src="@{/js/comic-detail.js}"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title >Chapter Detail</title>
+</head>
+<body>
+<h1 >hi</h1>
+
+<div th:each="images : ${images}">
+    <img th:src="${images.image_file}" alt="Chapter image" style="width:100%; margin-bottom:10px;">
+</div>
+</body>
+</html>
