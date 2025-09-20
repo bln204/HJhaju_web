@@ -1,13 +1,382 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi">
 <head>
-    <title >Chapter Detail</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đọc Truyện</title>
+    <link rel="stylesheet" th:href="@{/css/chapterDetailStyle.css}">
+
 </head>
 <body>
-<h1 >hi</h1>
 
-<div th:each="images : ${images}">
-    <img th:src="${images.image_file}" alt="Chapter image" style="width:100%; margin-bottom:10px;">
+<!-- Navbar -->
+<div class="navbar">
+    <div class="navbar-container">
+        <!-- Logo -->
+        <a class="logo" href="/">
+            <img th:src="@{/image/logo.png}" alt="Logo">
+        </a>
+
+        <!-- Menu -->
+        <div class="menu">
+            <a href="/">Trang Chủ</a>
+
+
+            <div class="dropdown">
+                <button class="dropdown-btn">Thể Loại</button>
+                <div class="dropdown-content">
+                    <div class="columns">
+                        <div th:each="category : ${categories}">
+                            <a th:href="@{/the-loai/{slug}(slug=${category.slug})}"
+                               th:text="${category.name}"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <a href="#">Liên Hệ</a>
+        </div>
+
+        <!-- Search + Login -->
+        <div style="display: flex; align-items: center;">
+            <div class="search-container">
+                <input type="text" id="searchBox" name="keyword" placeholder="Tìm kiếm truyện..." autocomplete="off">
+                <button type="submit" class="search-btn">Tìm</button>
+            </div>
+
+            <button class="login-btn">Đăng Nhập</button>
+            <button class="menu-btn" onclick="toggleSidebar()">📋 MENU</button>
+
+        </div>
+    </div>
 </div>
+
+
+<!-- Main Container -->
+<div class="main-container">
+    <!-- Content -->
+    <main class="content" id="mainContent">
+        <!-- Breadcrumb and Navigation Section -->
+        <div class="breadcrumb-section">
+            <div class="breadcrumb">
+                <a href="/">Trang Chủ</a>
+                <span class="separator">〉</span>
+                <a th:href="@{/{slug}(slug=${comic.slug})}" th:text="${comic.name}"></a>
+                <span class="separator">〉</span>
+                <a th:text="'Chương ' + ${chapter.name}"></a>
+            </div>
+
+            <div class="chapter-navigation">
+                <button class="nav-btn prev-btn" onclick="previousChapter()">
+                    <span class="nav-icon">⟨</span>
+                    <span class="nav-text">
+                        <small>TRƯỚC</small>
+                    </span>
+                </button>
+
+                <button class="nav-btn chapter-btn" onclick="showChapterList()">
+                    <span class="nav-icon">☰</span>
+                    <span class="nav-text">
+                        <small>CHƯƠNG</small>
+                    </span>
+                </button>
+
+                <button class="nav-btn next-btn" onclick="nextChapter()">
+                    <span class="nav-icon">⟩</span>
+                    <span class="nav-text">
+                        <small>SAU</small>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Chapter Content -->
+        <div class="chapter-container">
+            <div class="chapter-content" th:each="images : ${images}">
+                <img th:src="${images.image_file}" alt="" class="manga-image">
+            </div>
+        </div>
+
+
+        <div class="breadcrumb-section">
+            <div class="chapter-navigation">
+                <button class="nav-btn prev-btn" onclick="previousChapter()">
+                    <span class="nav-icon">⟨</span>
+                    <span class="nav-text">
+                        <small>TRƯỚC</small>
+                    </span>
+                </button>
+
+                <button class="nav-btn chapter-btn" onclick="showChapterList()">
+                    <span class="nav-icon">☰</span>
+                    <span class="nav-text">
+                        <small>CHƯƠNG</small>
+                    </span>
+                </button>
+
+                <button class="nav-btn next-btn" onclick="nextChapter()">
+                    <span class="nav-icon">⟩</span>
+                    <span class="nav-text">
+                        <small>SAU</small>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span th:text="${comic.name}"></span>
+        </div>
+
+        <div class="sidebar-content">
+            <!-- Chapter List -->
+            <div class="sidebar-section">
+                <h3>
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                    </svg>
+                    Chương
+                </h3>
+                <div class="sidebar-item active" onclick="showChapterSelector()">
+                    <span th:text="'Chương ' + ${chapter.name}"></span>
+                    <span class="page-number">Current ▶</span>
+                </div>
+            </div>
+
+            <!-- Reading Options -->
+            <div class="sidebar-section">
+                <h3>
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Bình Luận
+                </h3>
+                <div class="sidebar-item">
+                    <span>Viết bình luận</span>
+                    <span>💬</span>
+                </div>
+            </div>
+
+            <!-- Tools -->
+            <div class="sidebar-section">
+                <h3>
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Theo Dõi
+                </h3>
+                <div class="sidebar-item">
+                    <span>Đánh dấu</span>
+                    <span>🔖</span>
+                </div>
+            </div>
+
+            <!-- Other Options -->
+            <div class="sidebar-section">
+                <h3>
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    Báo Lỗi
+                </h3>
+                <div class="sidebar-item">
+                    <span>Báo cáo lỗi</span>
+                    <span>⚠️</span>
+                </div>
+            </div>
+
+            <!-- Page to top -->
+            <div class="sidebar-section">
+                <h3>
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+                    </svg>
+                    Lên đầu trang
+                </h3>
+                <div class="sidebar-item" onclick="scrollToTop()">
+                    <span>Về đầu trang</span>
+                    <span>⬆️</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Chapter Overlay -->
+    <div class="chapter-overlay" id="chapterOverlay" onclick="toggleChapterSelector()"></div>
+
+    <!-- Chapter Selector -->
+    <div class="chapter-selector" id="chapterSelector">
+        <div class="chapter-selector-header">
+            <div class="chapter-selector-title">
+                📚 Danh Sách Chương
+            </div>
+            <button class="close-chapter-selector" onclick="toggleChapterSelector()">✕</button>
+        </div>
+
+        <div class="chapter-search-container">
+            <input type="text" class="chapter-search-box" placeholder="🔍 Nhập số chương cần tìm..."
+                   oninput="searchChapters(this.value)" id="chapterSearchInput">
+        </div>
+
+        <div class="chapter-list" id="chapterList">
+            <div th:each="chapter : ${comic.chapter}" class="chapter-list-item current" >
+                <a  th:href="@{/{slug}/chuong-{name}(slug=${comic.slug}, name=${chapter.name})}" style="text-decoration: none">
+                    <div class="chapter-name" th:text="'Chương ' +  ${chapter.name}"></div>
+                    <div class="chapter-date">Hôm nay</div>
+
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+</div>
+
+
+<script>
+    // Show Chapter Selector function
+    function showChapterSelector() {
+        toggleChapterSelector();
+    }
+
+    // Toggle Chapter Selector
+    function toggleChapterSelector() {
+        const chapterSelector = document.getElementById('chapterSelector');
+        const chapterOverlay = document.getElementById('chapterOverlay');
+
+        chapterSelector.classList.toggle('active');
+        chapterOverlay.classList.toggle('active');
+
+        // Focus vào search box khi mở
+        if (chapterSelector.classList.contains('active')) {
+            setTimeout(() => {
+                document.getElementById('chapterSearchInput').focus();
+            }, 400);
+        }
+    }
+
+    // Search Chapters function
+    function searchChapters(searchTerm) {
+        const chapterList = document.getElementById('chapterList');
+        const items = chapterList.querySelectorAll('.chapter-list-item');
+
+        items.forEach(item => {
+            const chapterName = item.querySelector('.chapter-name').textContent.toLowerCase();
+            if (chapterName.includes(searchTerm.toLowerCase()) || searchTerm === '') {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    // Select Chapter function
+    function selectChapter(chapterNumber) {
+        // Update current chapter in sidebar
+        const currentChapterSpan = document.querySelector('.sidebar-item.active span');
+        if (currentChapterSpan) {
+            currentChapterSpan.textContent = `Chương ${chapterNumber}`;
+        }
+
+        // Update breadcrumb
+        const breadcrumbSpan = document.querySelector('.breadcrumb span:last-child');
+        if (breadcrumbSpan) {
+            breadcrumbSpan.textContent = `Chương ${chapterNumber}`;
+        }
+
+        // Close chapter selector
+        toggleChapterSelector();
+    }
+
+    // Toggle Sidebar
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const content = document.getElementById('mainContent');
+
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+
+        if (window.innerWidth > 768) {
+            content.classList.toggle('with-sidebar');
+        }
+    }
+
+    // Navigation functions
+    function previousChapter() {
+        console.log('Chuyển sang Chapter trước');
+        alert('Chuyển sang Chapter trước');
+    }
+
+    function nextChapter() {
+        console.log('Chuyển sang Chapter sau');
+        alert('Chuyển sang Chapter sau');
+    }
+
+    function showChapterList() {
+        console.log('Hiển thị danh sách chương');
+        toggleSidebar();
+    }
+
+    function scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    // Close sidebar when clicking on sidebar items
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        sidebarItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (this.onclick !== scrollToTop) {
+                    console.log('Clicked:', this.textContent.trim());
+                }
+            });
+        });
+    });
+
+    // Handle responsive behavior
+    window.addEventListener('resize', function() {
+        const sidebar = document.getElementById('sidebar');
+        const content = document.getElementById('mainContent');
+
+        if (window.innerWidth <= 768) {
+            content.classList.remove('with-sidebar');
+        } else if (sidebar.classList.contains('active')) {
+            content.classList.add('with-sidebar');
+        }
+    });
+
+    // Close sidebar with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const sidebar = document.getElementById('sidebar');
+            const chapterSelector = document.getElementById('chapterSelector');
+
+            if (chapterSelector.classList.contains('active')) {
+                toggleChapterSelector();
+            } else if (sidebar.classList.contains('active')) {
+                toggleSidebar();
+            }
+        }
+    });
+
+    // Clear search when chapter selector closes
+    document.addEventListener('click', function(e) {
+        const chapterSelector = document.getElementById('chapterSelector');
+        if (!chapterSelector.classList.contains('active')) {
+            document.getElementById('chapterSearchInput').value = '';
+            searchChapters(''); // Reset search
+        }
+    });
+</script>
 </body>
 </html>

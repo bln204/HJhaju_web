@@ -60,7 +60,7 @@
         <a th:href="@{/{slug}(slug=${comic.slug})}"> <img  th:src="${comic.thumb_image}" alt="Truyện"></a>
         <div class="info">
             <h3 >
-                <a th:href="@{/comic/{slug}(slug=${comic.slug})}"  th:text="${comic.name}" > </a>
+                <a th:href="@{/{slug}(slug=${comic.slug})}"  th:text="${comic.name}" > </a>
             </h3>
             <div class="meta">
                 👁 <span>1000</span> | 👍 <span>500</span> <br>
@@ -86,9 +86,6 @@
 </div>
 
 <hr>
-
-
-
 
 
 

@@ -12,14 +12,13 @@ import java.util.Optional;
 public interface ComicRepository extends JpaRepository<Comic, String> {
     Comic save(Comic comic);
 
-    Page<Comic> findByNameContainingIgnoreCase(String name, Pageable pageable);
+//    Page<Comic> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
     Optional<Comic> findById(String id);
 
     Comic findBySlug(String slug);
 
-//    Optional<Comic> findBySlug(String Slug);
-
-    List<Comic> findByNameContainingIgnoreCase(String name);
+    List<Comic> findByNameContainingIgnoreCase(String query, Pageable pageable);
 
     List<Comic> findByCategorySlug(String slug);
 
