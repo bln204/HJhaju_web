@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+  <h3>Search results for "<span th:text="${keyword}"></span>"</h3>
+  <ul>
+    <li th:each="comic : ${comics}" th:text="${comic.name}"></li>
+  </ul>
+
+  <!-- Phân trang -->
+  <div th:with="prevPage=${currentPage - 1}, nextPage=${currentPage + 1}">
+    <a th:if="${currentPage > 0}"
+       th:href="@{/home/search(keyword=${keyword}, page=${prevPage}, size=5)}">Previous</a>
+
+    <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span>
+
+    <a th:if="${currentPage + 1 < totalPages}"
+       th:href="@{/home/search(keyword=${keyword}, page=${nextPage}, size=5)}">Next</a>
+  </div>
+
+</div>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script th:src="@{/js/home-poster.js}"></script>
+
+</body>
+</html>

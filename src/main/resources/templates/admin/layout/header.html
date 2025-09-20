@@ -22,7 +22,7 @@
         <li><hr class="dropdown-divider" /></li>
         <li>
           <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;">
-          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
           </form>
           <a class="dropdown-item" href="#" onclick="document.getElementById('logoutForm').submit(); return false;">Logout</a>
         </li>
