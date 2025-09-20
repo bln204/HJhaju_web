@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-
 import jakarta.persistence.*;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,27 +28,6 @@ public class User implements UserDetails, OidcUser {
     private String password;
     private String fullName;
     private String role;
-    // Các thuộc tính cho OidcUser
-    @Transient
-    private Map<String, Object> attributes;
-    @Transient
-    private OidcIdToken idToken;
-    @Transient
-    private OidcUserInfo userInfo;
-
-    // Các thuộc tính cho quên mật khẩu bằng OTP
-    @Column(name = "otp")
-    private String otp;
-
-    @Column(name = "otp_expiry")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date otpExpiry;
-
-    @Override
-    public Map<String, Object> getAttributes() {
-        return attributes;
-    }
-
 
     // Các thuộc tính cho OidcUser
     @Transient
