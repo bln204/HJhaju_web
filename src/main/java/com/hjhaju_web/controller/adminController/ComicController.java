@@ -3,10 +3,7 @@ package com.hjhaju_web.controller.adminController;
 import com.hjhaju_web.model.Category;
 import com.hjhaju_web.model.Chapter_data;
 import com.hjhaju_web.model.Comic;
-import com.hjhaju_web.service.CategoryService;
-import com.hjhaju_web.service.ChapterService;
-import com.hjhaju_web.service.ComicService;
-import com.hjhaju_web.service.UploadFileService;
+import com.hjhaju_web.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,8 +29,10 @@ public class ComicController {
 
     @GetMapping("/details/{slug}")
     public String comicDetails(Model model,@PathVariable("slug") String slug) {
-        model.addAttribute("comic", comicService.findBySlug(slug));
-        return "admin/comic/details";
+        Comic comic = this.comicService.findBySlug(slug);
+        model.addAttribute("comic", comic);
+        model.addAttribute("categories", comic.getCategory());
+        return "admin/comic/comicDetails";
     }
 
     @GetMapping("/comic/add")
@@ -44,12 +43,14 @@ public class ComicController {
         return "admin/comic/createComic";
     }
 
-//    @PostMapping("/comic/add")
-//    public String addComic(@ModelAttribute("comic") Comic comic,@RequestParam("file") MultipartFile file ) {
-//        comic.setThumb_image(this.uploadFileService.uploadFile(file, "file-upload"));
-//        this.comicService.save(comic);
-//        return "redirect:/admin/comic";
-//    }
+    @PostMapping("/comic/add")
+    public String addComic(@ModelAttribute("comic") Comic comic,@RequestParam("category") List<Category> categories,@RequestParam("file") MultipartFile file ) {
+        comic.setThumb_image(this.uploadFileService.uploadFile(file, "file-upload"));
+        comic.setId(GenerateUUID.generateId());
+        comic.setCategory(categories);
+        this.comicService.save(comic);
+        return "redirect:/admin/comic";
+    }
 
     @GetMapping("/details/{slug}/{id}")
     public String getDataChapter(Model model,@PathVariable("id") String id){
@@ -57,5 +58,12 @@ public class ComicController {
         List<Chapter_data> ChapterDatas = this.chapterService.findByChapter(id);
         model.addAttribute("ChapterDatas", ChapterDatas);
         return "admin/comic/chapterDetails" ;
+    }
+
+    @PostMapping("/comic/delete/{id}")
+    public String deleteComic(@PathVariable("id") String id) {
+        String comicId = id;
+        this.comicService.deleteComic(comicId);
+        return "redirect:/admin/comic";
     }
 }
