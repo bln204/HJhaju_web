@@ -3,29 +3,40 @@ package com.hjhaju_web.configuration;
 import com.hjhaju_web.model.User;
 import com.hjhaju_web.repository.UserRepository;
 import com.hjhaju_web.service.UserService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+
+import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private UserService userService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
+    public SecurityConfig(PasswordEncoder passwordEncoder, UserRepository userRepository, UserService userService) {
+        this.passwordEncoder = passwordEncoder;
+        this.userRepository = userRepository;
+        this.userService = userService;
+    }
 
     @Bean
     public AuthenticationSuccessHandler myAuthenticationSuccessHandler() {
@@ -36,34 +47,80 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/", "/register", "/image/**", "/signup", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/login", "/register", "/", "/css/**", "/js/**", "/image/**", "/forgot-password", "/verify-otp", "/resend-otp").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .successHandler(myAuthenticationSuccessHandler())
+                        .successHandler(customAuthenticationSuccessHandler())
                         .permitAll()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
+                        .successHandler(customAuthenticationSuccessHandler())
                         .userInfoEndpoint(userInfo -> userInfo
-                                .oidcUserService(oidcUserService())
+                                .oidcUserService(this.oidcUserService())
                         )
-                        .successHandler(oAuth2AuthenticationSuccessHandler())
                 )
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/login?logout")
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/logout=true")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
                         .permitAll()
-                );
+                )
+                .csrf(csrf -> csrf.disable()); // Tắt CSRF để đơn giản; bật trong production với xử lý phù hợp
 
         return http.build();
     }
 
     @Bean
+    public AuthenticationTrustResolver trustResolver() {
+        return new AuthenticationTrustResolverImpl();
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+        return new AuthenticationSuccessHandler() {
+            private final SimpleUrlAuthenticationSuccessHandler defaultHandler = new SimpleUrlAuthenticationSuccessHandler();
+
+            @Override
+            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                                Authentication authentication) throws IOException, ServletException {
+                // kiểm tra role của user
+                boolean isAdmin = authentication.getAuthorities().stream()
+                        .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+
+                if (isAdmin) {
+                    // chuyển đến url admin
+                    response.sendRedirect("/admin");
+                } else {
+                    // chuyển đến url /
+                    defaultHandler.onAuthenticationSuccess(request, response, authentication);
+                }
+            }
+        };
+    }
+
+    @Bean
     public OidcUserService oidcUserService() {
         OidcUserService oidcUserService = new OidcUserService();
-        return oidcUserService;
+        return new OidcUserService() {
+            @Override
+            public OidcUser loadUser(OidcUserRequest userRequest) {
+                OidcUser oidcUser = oidcUserService.loadUser(userRequest);
+                String email = oidcUser.getAttribute("email");
+                String fullName = oidcUser.getAttribute("name");
+                // Lưu hoặc cập nhật người dùng vào DB và trả về User
+                User user = userService.registerOrUpdateGoogleUser(email, fullName);
+                // Gán các thuộc tính OidcUser
+                user.setAttributes(oidcUser.getAttributes());
+                user.setIdToken(userRequest.getIdToken());
+                user.setUserInfo(oidcUser.getUserInfo());
+                return user;
+            }
+        };
     }
 
 
@@ -82,10 +139,10 @@ public class SecurityConfig {
                     user.setFullName(fullName);
                     user.setUsername(email);
                     user.setRole("USER");
-                    user.setPassword(passwordEncoder.encode("google-auth-" + email));
+                    user.setPassword(passwordEncoder.encode("12345678"));
                     userRepository.save(user);
                 }
-                response.sendRedirect("/");
+                    response.sendRedirect("/");
             } catch (Exception e) {
                 throw new RuntimeException("Lỗi khi xử lý người dùng OAuth2", e);
             }

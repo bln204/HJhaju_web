@@ -377,3 +377,91 @@ hr {
     font-weight: bold;
 }
 
+
+/* css cho nút đăng nhập khi đăng nhập thành công*/
+.user-container {
+    position: relative;
+    display: inline-block;
+}
+.user-name {
+    cursor: pointer;
+    font-weight: 500;
+    padding: 5px 10px;
+    display: inline-block;
+}
+.dropdown-username {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #0b1b2b;
+    border: 1px solid #0b1b2b;
+    border-radius: 4px;
+    min-width: 150px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+
+}
+.user-container:hover .dropdown-username {
+    display: block;
+}
+.dropdown-username a, .dropdown-username button {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    color: white;
+    font-size: 17px;
+}
+.dropdown-username a:hover, .dropdown-username button:hover {
+    background-color: #0b1b2b;
+    width: fit-content;
+}
+
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.form-group {
+    margin-bottom: 15px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.btn {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.error {
+    color: red;
+    margin-bottom: 10px;
+}
+
+.lable{
+    color: black;
+}
+
