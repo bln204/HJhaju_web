@@ -47,7 +47,9 @@
 
                     <div class="card-body d-flex justify-content-between">
                         <div class="col col-3">
-                            <img style="width:100%" th:src="${comic.thumb_image}" alt="">
+                            <img style="width:100%"
+                                 th:src="${#strings.startsWith(comic.thumb_image, 'http') ? comic.thumb_image : '/file-upload/' + comic.thumb_image}"
+                                 alt="">
                         </div>
                         <div class="col col-8">
                             <h5><span class="text-danger" th:text="${comic.name}"></span></h5>
@@ -65,7 +67,7 @@
                             <div class="d-flex gap-2 flex-wrap">
                                 <button type="button"
                                         class="btn btn-outline-primary"
-                                        th:each="category : ${comic.category}"
+                                        th:each="category : ${categories}"
                                         th:text="${category.name}" style="padding-top:1px;padding-bottom:1px;">
                                 </button>
                             </div>

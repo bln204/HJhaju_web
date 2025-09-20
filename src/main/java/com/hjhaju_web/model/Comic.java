@@ -43,5 +43,4 @@ public class Comic {
 
     @OneToMany
     private List<Chapter> chapter;
-
 }

@@ -80,7 +80,7 @@
                                 <div th:each="category : ${categories}">
                                     <div class="form-check">
                                         <label th:for="${category.id}" ><span th:text="${category.name}"></span></label>
-                                        <input name="category" class="form-check-input" th:id="${category.id}" type="checkbox" th:value="${category.name}">
+                                        <input name="category" class="form-check-input" th:id="${category.id}" type="checkbox" th:value="${category.id}">
                                     </div>
                                 </div>
 <!--                                <div th:each="category : ${categories}">-->

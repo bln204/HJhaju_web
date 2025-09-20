@@ -1,6 +1,10 @@
 package com.hjhaju_web.service;
 
+import com.hjhaju_web.model.Chapter;
+import com.hjhaju_web.model.Chapter_data;
 import com.hjhaju_web.model.Comic;
+import com.hjhaju_web.repository.ChapterDataRepository;
+import com.hjhaju_web.repository.ChapterRepository;
 import com.hjhaju_web.repository.ComicRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +17,18 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class ComicService {
     private final ComicRepository comicRepository;
+    private final ChapterRepository chapterRepository;
+    private final ChapterDataRepository chapterDataRepository;
 
+    public ComicService(ComicRepository comicRepository, ChapterRepository chapterRepository, ChapterDataRepository chapterDataRepository) {
+        this.comicRepository = comicRepository;
+        this.chapterRepository = chapterRepository;
+        this.chapterDataRepository = chapterDataRepository;
+    }
 
-    public Page<Comic> getComic( int page, int size) {
+    public Page<Comic> getComic(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return comicRepository.findAll(pageable);
     }
@@ -52,8 +62,16 @@ public class ComicService {
         return comicRepository.findByCategorySlug(slug);
      }
 
-//    public Comic getComicBySlug(String slug) {
-//        return comicRepository.findBySlug(slug)
-//                .orElseThrow(() -> new RuntimeException("Comic not found"));
-//    }
+    public void deleteComic(String id) {
+        Optional<Comic> optionalComic = this.comicRepository.findById(id);
+        if(optionalComic.isPresent()) {
+            Comic comic = optionalComic.get();
+            List<Chapter> chapters = this.chapterRepository.findByComic(comic);
+            for(Chapter chapter : chapters) {
+                this.chapterDataRepository.deleteByChapter(chapter);
+            }
+            this.chapterRepository.deleteByComic(comic);
+            this.comicRepository.deleteById(id);
+        }
+    }
 }

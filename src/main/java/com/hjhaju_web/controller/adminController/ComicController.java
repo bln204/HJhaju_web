@@ -29,7 +29,9 @@ public class ComicController {
 
     @GetMapping("/details/{slug}")
     public String comicDetails(Model model,@PathVariable("slug") String slug) {
-        model.addAttribute("comic", comicService.findBySlug(slug));
+        Comic comic = this.comicService.findBySlug(slug);
+        model.addAttribute("comic", comic);
+        model.addAttribute("categories", comic.getCategory());
         return "admin/comic/comicDetails";
     }
 
@@ -42,9 +44,10 @@ public class ComicController {
     }
 
     @PostMapping("/comic/add")
-    public String addComic(@ModelAttribute("comic") Comic comic,@RequestParam("category") Category category,@RequestParam("file") MultipartFile file ) {
+    public String addComic(@ModelAttribute("comic") Comic comic,@RequestParam("category") List<Category> categories,@RequestParam("file") MultipartFile file ) {
         comic.setThumb_image(this.uploadFileService.uploadFile(file, "file-upload"));
         comic.setId(GenerateUUID.generateId());
+        comic.setCategory(categories);
         this.comicService.save(comic);
         return "redirect:/admin/comic";
     }
@@ -55,5 +58,12 @@ public class ComicController {
         List<Chapter_data> ChapterDatas = this.chapterService.findByChapter(id);
         model.addAttribute("ChapterDatas", ChapterDatas);
         return "admin/comic/chapterDetails" ;
+    }
+
+    @PostMapping("/comic/delete/{id}")
+    public String deleteComic(@PathVariable("id") String id) {
+        String comicId = id;
+        this.comicService.deleteComic(comicId);
+        return "redirect:/admin/comic";
     }
 }
