@@ -24,16 +24,32 @@ public class User implements UserDetails, OidcUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
     private String username;
-
-    @Column(nullable = false, unique = true)
     private String email;
     private String password;
     private String fullName;
-
-    @Column
     private String role;
+    // Các thuộc tính cho OidcUser
+    @Transient
+    private Map<String, Object> attributes;
+    @Transient
+    private OidcIdToken idToken;
+    @Transient
+    private OidcUserInfo userInfo;
+
+    // Các thuộc tính cho quên mật khẩu bằng OTP
+    @Column(name = "otp")
+    private String otp;
+
+    @Column(name = "otp_expiry")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date otpExpiry;
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
 
     // Các thuộc tính cho OidcUser
     @Transient
