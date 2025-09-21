@@ -30,38 +30,4 @@ document.querySelectorAll(".tabs .tab").forEach(tab => {
     });
 });
 
-//search
-$(document).ready(function() {
-    $("#searchBox").on("input", function() {
-        let keyword = $(this).val();
-
-        if (keyword.length < 2) {
-            $("#suggestions").empty();
-            return;
-        }
-
-        $.ajax({
-            url: "/home/suggest",
-            type: "GET",
-            data: { keyword: keyword },
-            success: function(data) {
-                let list = "";
-                data.forEach(c => {
-                    list += `<li><a href="/home/${c.id}">${c.name}</a></li>`;
-                });
-                $("#suggestions").html(list);
-            },
-            error: function() {
-                $("#suggestions").html("<li style='color:red'>Error loading</li>");
-            }
-        });
-    });
-
-    // Khi click ra ngoài thì ẩn gợi ý
-    $(document).click(function(e) {
-        if (!$(e.target).closest("#searchBox").length) {
-            $("#suggestions").empty();
-        }
-    });
-});
 
