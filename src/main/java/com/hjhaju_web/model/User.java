@@ -8,8 +8,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -24,32 +24,39 @@ public class User implements UserDetails, OidcUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @NotBlank(message = "Tên người dùng không được để trống")
+    @Size(min = 3, max = 50, message = "Tên người dùng phải từ 3 đến 50 ký tự")
     private String username;
 
-    @Column(nullable = false, unique = true)
+    @NotBlank(message = "Email không được để trống")
+    @Email(message = "Email không hợp lệ")
     private String email;
+
+    @NotBlank(message = "Mật khẩu không được để trống")
+    @Size(min = 8, message = "Mật khẩu phải có ít nhất 8 ký tự")
     private String password;
+
+    @Size(max = 100, message = "Họ và tên không được vượt quá 100 ký tự")
     private String fullName;
 
-    @Column
+    @NotBlank(message = "Vai trò không được để trống")
     private String role;
 
-    // Các thuộc tính cho OidcUser
-    @Transient
-    private Map<String, Object> attributes;
-    @Transient
-    private OidcIdToken idToken;
-    @Transient
-    private OidcUserInfo userInfo;
-
-    // Các thuộc tính cho quên mật khẩu bằng OTP
     @Column(name = "otp")
     private String otp;
 
     @Column(name = "otp_expiry")
     @Temporal(TemporalType.TIMESTAMP)
     private Date otpExpiry;
+
+    @Transient
+    private Map<String, Object> attributes;
+
+    @Transient
+    private OidcIdToken idToken;
+
+    @Transient
+    private OidcUserInfo userInfo;
 
     @Override
     public Map<String, Object> getAttributes() {
@@ -90,7 +97,7 @@ public class User implements UserDetails, OidcUser {
 
     @Override
     public String getName() {
-        return this.fullName; // Trả về fullName từ DB
+        return this.fullName;
     }
 
     @Override
@@ -100,7 +107,7 @@ public class User implements UserDetails, OidcUser {
 
     @Override
     public String getUsername() {
-        return email; // Sử dụng email làm username
+        return username;
     }
 
     @Override

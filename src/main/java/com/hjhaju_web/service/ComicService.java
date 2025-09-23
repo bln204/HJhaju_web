@@ -2,6 +2,7 @@ package com.hjhaju_web.service;
 
 import com.hjhaju_web.model.Chapter;
 import com.hjhaju_web.model.Chapter_data;
+import com.hjhaju_web.dto.ComicSuggestionDTO;
 import com.hjhaju_web.model.Comic;
 import com.hjhaju_web.repository.ChapterDataRepository;
 import com.hjhaju_web.repository.ChapterRepository;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ComicService {
@@ -33,14 +35,25 @@ public class ComicService {
         return comicRepository.findAll(pageable);
     }
 
-    public Page<Comic> searchComics( int page, int size, String keyword) {
-        Pageable pageable = PageRequest.of(page, size);
-        return comicRepository.findByNameContainingIgnoreCase(keyword, pageable);
+    public List<ComicSuggestionDTO> getSearchSuggestions(String query, int limit) {
+        return comicRepository.findByNameContainingIgnoreCase(query, PageRequest.of(0, limit))
+                .stream()
+                .map(comic -> ComicSuggestionDTO.builder()
+                        .name(comic.getName())
+                        .thumbImage(comic.getThumb_image())
+                        .slug(comic.getSlug())
+                        .category(
+                                comic.getCategory() != null
+                                        ? comic.getCategory().stream()
+                                        .map(cat -> cat.getName())
+                                        .collect(Collectors.joining(", "))
+                                        : ""
+                        )
+                        .build()
+                )
+                .collect(Collectors.toList());
     }
 
-    public List<Comic> suggestComics( String name ) {
-        return comicRepository.findByNameContainingIgnoreCase( name );
-    }
 
     public List<Comic> findAll() {
         return comicRepository.findAll();
@@ -60,7 +73,7 @@ public class ComicService {
 
     public List<Comic> findByCategorySlug(String slug) {
         return comicRepository.findByCategorySlug(slug);
-     }
+    }
 
     public void deleteComic(String id) {
         Optional<Comic> optionalComic = this.comicRepository.findById(id);

@@ -6,7 +6,6 @@ import com.hjhaju_web.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
@@ -38,16 +37,12 @@ public class SecurityConfig {
         this.userService = userService;
     }
 
-    @Bean
-    public AuthenticationSuccessHandler myAuthenticationSuccessHandler() {
-        return new CustomSuccessHandler();
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register", "/", "/css/**", "/js/**", "/image/**", "/forgot-password", "/verify-otp", "/resend-otp").permitAll()
+                        .requestMatchers("/login", "/register", "/signup", "/", "/css/**", "/js/**", "/image/**", "/forgot-password", "/verify-otp", "/resend-otp").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

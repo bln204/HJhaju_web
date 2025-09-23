@@ -14,6 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
 
 import java.util.Date;
 import java.util.List;
@@ -32,6 +35,9 @@ public class UserService implements UserDetailsService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Autowired
+    private Validator validator;
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
@@ -39,31 +45,32 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void registerUser(User user) throws Exception {
+    public void registerUser(User user, BindingResult bindingResult) throws Exception {
         log.info("Attempting to register user: {}", user.getEmail());
-        // Kiểm tra dữ liệu đầu vào
-        if (user.getEmail() == null || user.getEmail().isEmpty()) {
-            log.error("Email is null or empty");
-            throw new IllegalArgumentException("Email không được để trống");
-        }
-        if (user.getPassword() == null || user.getPassword().isEmpty()) {
-            log.error("Password is null or empty");
-            throw new IllegalArgumentException("Mật khẩu không được để trống");
-        }
-        if (user.getUsername() == null || user.getUsername().isEmpty()) {
-            log.error("Username is null or empty");
-            throw new IllegalArgumentException("Tên người dùng không được để trống");
+        log.debug("User details: username={}, email={}, fullName={}, password={}",
+                user.getUsername(), user.getEmail(), user.getFullName(), user.getPassword());
+
+        // Kiểm tra validation
+        validator.validate(user, bindingResult);
+        if (bindingResult.hasErrors()) {
+            String errors = bindingResult.getAllErrors().stream()
+                    .map(error -> error.getDefaultMessage())
+                    .reduce("", (a, b) -> a + ", " + b);
+            log.error("Validation errors: {}", errors);
+            throw new IllegalArgumentException("Dữ liệu không hợp lệ: " + errors);
         }
 
         // Kiểm tra email và username trùng lặp
         Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
         if (existingUser.isPresent()) {
             log.error("Email already exists: {}", user.getEmail());
+            bindingResult.rejectValue("email", "error.user", "Email đã tồn tại");
             throw new IllegalArgumentException("Email đã tồn tại");
         }
         Optional<User> existingUsername = userRepository.findByUsername(user.getUsername());
         if (existingUsername.isPresent()) {
             log.error("Username already exists: {}", user.getUsername());
+            bindingResult.rejectValue("username", "error.user", "Tên người dùng đã tồn tại");
             throw new IllegalArgumentException("Tên người dùng đã tồn tại");
         }
 
@@ -72,35 +79,35 @@ public class UserService implements UserDetailsService {
         user.setRole("USER");
         log.info("Saving user: {}", user.getEmail());
         try {
-            userRepository.save(user);
-            log.info("User saved successfully: {}", user.getEmail());
+            User savedUser = userRepository.save(user);
+            userRepository.flush();
+            log.info("User saved successfully: {}, ID: {}", savedUser.getEmail(), savedUser.getId());
         } catch (Exception e) {
-            log.error("Failed to save user: {}", user.getEmail(), e);
+            log.error("Failed to save user: {}, error: {}", user.getEmail(), e.getMessage(), e);
             throw new Exception("Lỗi khi lưu người dùng: " + e.getMessage(), e);
         }
     }
+
     @Transactional
     public User registerOrUpdateGoogleUser(String email, String fullName) {
         log.info("Registering or updating Google user with email: {}", email);
         User user = userRepository.findByEmail(email).orElse(new User());
         user.setEmail(email);
         user.setUsername(email);
-
-        // Chỉ set fullName nếu chưa tồn tại hoặc rỗng (không ghi đè nếu đã có)
         if (user.getFullName() == null || user.getFullName().isEmpty()) {
             user.setFullName(fullName != null ? fullName : "Người dùng Google");
         }
-
         user.setRole("USER");
         if (user.getPassword() == null) {
             user.setPassword(passwordEncoder.encode("google-auth-" + email));
         }
         try {
-            user = userRepository.save(user);
-            log.info("Google user saved successfully: {}", user.getEmail());
-            return user;
+            User savedUser = userRepository.save(user);
+            userRepository.flush();
+            log.info("Google user saved successfully: {}, ID: {}", savedUser.getEmail(), savedUser.getId());
+            return savedUser;
         } catch (Exception e) {
-            log.error("Failed to save Google user: {}", email, e);
+            log.error("Failed to save Google user: {}, error: {}", email, e.getMessage(), e);
             throw new RuntimeException("Lỗi khi lưu người dùng Google: " + e.getMessage(), e);
         }
     }
@@ -110,36 +117,35 @@ public class UserService implements UserDetailsService {
         log.info("Updating user: {}", user.getEmail());
         try {
             userRepository.save(user);
+            userRepository.flush();
             log.info("User updated successfully: {}", user.getEmail());
         } catch (Exception e) {
-            log.error("Failed to update user: {}", user.getEmail(), e);
+            log.error("Failed to update user: {}, error: {}", user.getEmail(), e.getMessage(), e);
             throw new RuntimeException("Lỗi khi cập nhật người dùng: " + e.getMessage(), e);
         }
     }
+
     @Transactional
     public void changePassword(String email, String oldPassword, String newPassword) {
         log.info("Attempting to change password for user: {}", email);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với email: " + email));
-
-        // Kiểm tra mật khẩu cũ
         if (user.getPassword() == null || !passwordEncoder.matches(oldPassword, user.getPassword())) {
             log.error("Invalid old password for user: {}", email);
             throw new IllegalArgumentException("Mật khẩu cũ không đúng");
         }
-
-        // Cập nhật mật khẩu mới
         user.setPassword(passwordEncoder.encode(newPassword));
         try {
             userRepository.save(user);
+            userRepository.flush();
             log.info("Password changed successfully for user: {}", email);
         } catch (Exception e) {
-            log.error("Failed to change password for user: {}", email, e);
+            log.error("Failed to change password for user: {}, error: {}", email, e.getMessage(), e);
             throw new RuntimeException("Lỗi khi đổi mật khẩu: " + e.getMessage(), e);
         }
     }
 
-    public List<User> getAllUser(){
+    public List<User> getAllUser() {
         return userRepository.findAll();
     }
 
@@ -151,8 +157,9 @@ public class UserService implements UserDetailsService {
             User user = userOpt.get();
             String otp = generateOtp();
             user.setOtp(otp);
-            user.setOtpExpiry(new Date(System.currentTimeMillis() + 10 * 60 * 1000)); // OTP hết hạn sau 10 phút
+            user.setOtpExpiry(new Date(System.currentTimeMillis() + 10 * 60 * 1000));
             userRepository.save(user);
+            userRepository.flush();
             sendOtpEmail(user.getEmail(), otp);
             log.info("OTP sent successfully to: {}", email);
         } else {
@@ -168,13 +175,10 @@ public class UserService implements UserDetailsService {
             log.error("Password and confirm password do not match for email: {}", email);
             throw new IllegalArgumentException("Mật khẩu mới và xác nhận mật khẩu không khớp");
         }
-
-        // Kiểm tra độ mạnh của mật khẩu mới
         if (!isPasswordStrong(newPassword)) {
             log.error("New password is too weak for email: {}", email);
             throw new IllegalArgumentException("Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm chữ hoa và số");
         }
-
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
@@ -186,11 +190,11 @@ public class UserService implements UserDetailsService {
                 log.error("OTP expired for email: {}", email);
                 throw new IllegalArgumentException("OTP đã hết hạn");
             }
-
             user.setPassword(passwordEncoder.encode(newPassword));
             user.setOtp(null);
             user.setOtpExpiry(null);
             userRepository.save(user);
+            userRepository.flush();
             log.info("Password reset successfully for email: {}", email);
         } else {
             log.error("Email not found: {}", email);
@@ -200,7 +204,7 @@ public class UserService implements UserDetailsService {
 
     private String generateOtp() {
         Random random = new Random();
-        int otp = 100000 + random.nextInt(900000); // Tạo OTP 6 chữ số
+        int otp = 100000 + random.nextInt(900000);
         return String.valueOf(otp);
     }
 
