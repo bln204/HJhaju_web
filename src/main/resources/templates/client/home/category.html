@@ -6,6 +6,8 @@
     <meta charset="UTF-8">
     <title th:text="${category.name}"></title>
     <link rel="stylesheet" th:href="@{/css/homeStyle.css}">
+    <link rel="stylesheet" th:href="@{/css/searchStyle.css}">
+
 
     <style>
         .title {
@@ -59,6 +61,8 @@
 <!--       th:href="@{/(page=${currentPage + 1})}">»</a>-->
 <!--</div>-->
 
+
+<script th:src="@{/js/search.js}"></script>
 <script th:src="@{/js/home-poster.js}"></script>
 </body>
 </html>

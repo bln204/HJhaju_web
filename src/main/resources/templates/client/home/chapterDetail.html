@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đọc Truyện</title>
     <link rel="stylesheet" th:href="@{/css/chapterDetailStyle.css}">
+    <link rel="stylesheet" th:href="@{/css/searchStyle.css}">
+
 
 </head>
 <body>
@@ -41,8 +43,17 @@
         <!-- Search + Login -->
         <div style="display: flex; align-items: center;">
             <div class="search-container">
-                <input type="text" id="searchBox" name="keyword" placeholder="Tìm kiếm truyện..." autocomplete="off">
-                <button type="submit" class="search-btn">Tìm</button>
+                <input type="text" class="search-input" id="searchInput"
+                       placeholder="🔍  Tìm kiếm truyện..." autocomplete="off">
+                <button class="search-btn" onclick="performSearch()">Tìm</button>
+
+                <!-- Autocomplete Dropdown -->
+                <div class="autocomplete-dropdown" id="autocompleteDropdown">
+                    <div class="autocomplete-header" id="autocompleteHeader"></div>
+                    <div id="autocompleteResults">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
             </div>
 
             <button class="login-btn">Đăng Nhập</button>
@@ -378,5 +389,7 @@
         }
     });
 </script>
+<script th:src="@{/js/search.js}"></script>
+
 </body>
 </html>

@@ -54,6 +54,11 @@ public class ComicService {
                 .collect(Collectors.toList());
     }
 
+    public Page<Comic> searchComicsByName(String query, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return comicRepository.findByNameContainingIgnoreCase(query, pageable);
+    }
+
 
     public List<Comic> findAll() {
         return comicRepository.findAll();

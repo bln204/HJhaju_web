@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
-    <title th:text="${comic.name}">Comic </title>
+    <title th:text="${comic.name}"> </title>
 <!--    <link rel="stylesheet" href="/css/comic-detail.css">-->
     <link rel="stylesheet" th:href="@{/css/comicDetailStyle.css}">
     <link rel="stylesheet" th:href="@{/css/homeStyle.css}">
+    <link rel="stylesheet" th:href="@{/css/searchStyle.css}">
+
 
 </head>
 <body>
@@ -103,6 +105,8 @@
 </div>
 
 
+
+<script th:src="@{/js/search.js}"></script>
 <script th:src="@{/js/comic-detail.js}"></script>
 </body>
 </html>

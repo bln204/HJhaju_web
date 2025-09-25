@@ -15,10 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -51,19 +48,38 @@ public class HomeController {
         return "client/home/show";
     }
 
+    @GetMapping("/search")
+    public String searchComics(@RequestParam("query") String query,
+                               @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "20") int size,
+                               Model model,
+                               Authentication authentication) {
 
-//    @GetMapping("/search")
-//    public List<Comic> autocomplete(@RequestParam String keyword) {
-//        return comicService.searchByName(keyword);
-//    }
+        Page<Comic> comicPage = comicService.searchComicsByName(query, page, size);
+
+        model.addAttribute("comics", comicPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", comicPage.getTotalPages());
+        model.addAttribute("query", query);
+
+        if (authentication != null) {
+            model.addAttribute("username", authentication.getName());
+        }
+
+        return "client/home/search";
+    }
+
 
     @GetMapping("/api/search/suggestions")
+    @ResponseBody
     public List<ComicSuggestionDTO> getSuggestions(
             @RequestParam String query,
             @RequestParam(defaultValue = "10") int limit
     ) {
         return comicService.getSearchSuggestions(query, limit);
     }
+
+
 
     @GetMapping("/the-loai/{slug}")
     public String categoryComics( @PathVariable String slug  ,Model model) {
