@@ -1,6 +1,10 @@
 package com.hjhaju_web.service;
 
+import com.hjhaju_web.model.Comic;
+import com.hjhaju_web.model.Comment;
 import com.hjhaju_web.model.User;
+import com.hjhaju_web.repository.ComicRepository;
+import com.hjhaju_web.repository.CommentRepository;
 import com.hjhaju_web.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -18,6 +22,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +42,12 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private Validator validator;
+
+    @Autowired
+    private CommentRepository commentRepository;
+
+    @Autowired
+    private ComicRepository comicRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -222,5 +233,34 @@ public class UserService implements UserDetailsService {
                 password.length() >= 8 &&
                 password.matches(".*[A-Z].*") &&
                 password.matches(".*\\d.*");
+    }
+
+    @Transactional
+    public Comment addComment(String comicId, String content, String userEmail) {
+        System.out.println("Adding comment for comicId: " + comicId + ", user: " + userEmail + ", content: " + content);
+        Optional<User> userOptional = userRepository.findByEmail(userEmail);
+        Optional<Comic> comicOptional = comicRepository.findById(comicId);
+
+        if (userOptional.isEmpty()) {
+            System.err.println("User not found with email: " + userEmail);
+            throw new IllegalArgumentException("User not found with email: " + userEmail);
+        }
+        if (comicOptional.isEmpty()) {
+            System.err.println("Comic not found with id: " + comicId);
+            throw new IllegalArgumentException("Comic not found with id: " + comicId);
+        }
+
+        Comment comment = new Comment();
+        comment.setContent(content);
+        comment.setUser(userOptional.get());
+        comment.setComic(comicOptional.get());
+        comment.setCreatedAt(LocalDateTime.now());
+        Comment savedComment = commentRepository.save(comment);
+        System.out.println("Comment saved: " + savedComment.getId());
+        return savedComment;
+    }
+
+    public List<Comment> getCommentsByComicId(String comicId) {
+        return commentRepository.findByComicIdOrderByCreatedAtDesc(comicId);
     }
 }

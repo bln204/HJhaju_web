@@ -29,7 +29,8 @@ public class ComicController {
 
     @GetMapping("/details/{slug}")
     public String comicDetails(Model model,@PathVariable("slug") String slug) {
-        Comic comic = this.comicService.findBySlug(slug);
+        Comic comic = this.comicService.findBySlug(slug)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy truyện với slug: " + slug));
         model.addAttribute("comic", comic);
         model.addAttribute("categories", comic.getCategory());
         return "admin/comic/comicDetails";

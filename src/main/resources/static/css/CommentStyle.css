@@ -1,0 +1,152 @@
+/* Container cho các form xác thực */
+.auth-container {
+    background-color: #0b1b2b;
+    min-height: calc(100vh - 56px); /* Trừ chiều cao header (giả sử 56px) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Tùy chỉnh card */
+.card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+}
+
+/* Tùy chỉnh form */
+.forgot-form, .otp-form {
+    max-width: 100%;
+    padding: 0 15px;
+}
+
+/* Tùy chỉnh input */
+.form-floating input {
+    border-radius: 5px;
+    border: 1px solid #0b1b2b;
+    transition: border-color 0.3s ease;
+}
+
+.form-floating input:focus {
+    border-color: #212529;
+    box-shadow: 0 0 5px rgba(33, 37, 41, 0.3);
+}
+
+/* Tùy chỉnh button */
+.btn-primary {
+    background-color: #212529;
+    border-color: #212529;
+    padding: 10px 20px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    color: white;
+    width: 100%;
+}
+
+.btn-primary:hover {
+    background-color: #343a40;
+    border-color: #343a40;
+}
+
+/* Tùy chỉnh link */
+.text-muted {
+    color: #6c757d !important;
+    text-decoration: none;
+}
+
+.text-muted:hover {
+    color: #212529 !important;
+    text-decoration: underline;
+}
+
+/* Tùy chỉnh button gửi lại OTP */
+.btn-link {
+    color: #212529;
+    text-decoration: none;
+}
+
+.btn-link:hover {
+    color: #343a40;
+    text-decoration: underline;
+}
+
+/* Tùy chỉnh bình luận */
+.comment-form {
+    margin-bottom: 20px;
+}
+
+.comment-form textarea {
+    width: 100%;
+    min-height: 100px;
+    border-radius: 5px;
+    border: 1px solid #0b1b2b;
+    padding: 10px;
+    resize: vertical;
+}
+
+.comment-form textarea:focus {
+    border-color: #212529;
+    box-shadow: 0 0 5px rgba(33, 37, 41, 0.3);
+    outline: none;
+}
+
+.comment-item {
+    border-bottom: 1px solid #e9ecef;
+    padding: 10px 0;
+}
+
+.comment-user {
+    font-weight: bold;
+    color: #212529;
+}
+
+.comment-content {
+    margin: 5px 0;
+    color: #343a40;
+}
+
+.comment-time {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.no-comments {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .card {
+        margin-top: 10px;
+        padding: 10px;
+    }
+
+    .card-header h3 {
+        font-size: 1.5rem;
+    }
+
+    .btn-primary {
+        padding: 12px;
+    }
+
+    .form-floating label {
+        font-size: 0.9rem;
+    }
+
+    .comment-form textarea {
+        font-size: 0.9rem;
+    }
+
+    .comment-user, .comment-content {
+        font-size: 0.9rem;
+    }
+
+    .comment-time {
+        font-size: 0.8rem;
+    }
+}

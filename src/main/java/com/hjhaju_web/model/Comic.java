@@ -41,7 +41,12 @@ public class Comic {
     )
     private List<Category> category;
 
-    @OneToMany
+//    @OneToMany
+//    private List<Chapter> chapter;
+    @OneToMany(mappedBy = "comic")
     private List<Chapter> chapter;
+
+    @OneToMany(mappedBy = "comic")
+    private List<Comment> comments;
 
 }

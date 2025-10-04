@@ -63,7 +63,7 @@ public class ComicService {
         return comicRepository.findById(id);
     }
 
-    public Comic findBySlug(String slug) {
+    public Optional<Comic> findBySlug(String slug) {
         return this.comicRepository.findBySlug(slug);
     }
 
