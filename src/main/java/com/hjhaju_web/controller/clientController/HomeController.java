@@ -1,6 +1,7 @@
 package com.hjhaju_web.controller.clientController;
 
 
+import com.hjhaju_web.dto.ComicSuggestionDTO;
 import com.hjhaju_web.model.Category;
 import com.hjhaju_web.model.Chapter;
 import com.hjhaju_web.model.Chapter_data;
@@ -32,12 +33,12 @@ public class HomeController {
 
 
 
+
     @GetMapping("/")
     public String listComics(Model model,
                               @RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "20") int size,
                              Authentication authentication) {
-//        model.addAttribute("categories" , categoryService.findAll() );
 
         Page<Comic> comicPage = comicService.getComic(page, size);
         model.addAttribute("comics", comicPage.getContent());
@@ -51,27 +52,19 @@ public class HomeController {
         return "client/home/show";
     }
 
-//    @GetMapping("/suggest")
-//    public List<Comic> suggestComics( @RequestParam String keyword) {
-//        return comicService.suggestComics(keyword);
-//    }
-//
+
 //    @GetMapping("/search")
-//    public String searchComics(
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "5") int size,
-//            @RequestParam(value = "keyword", defaultValue = "") String keyword,
-//            Model model) {
-//
-//        Page<Comic> comics = comicService.searchComics(page, size, keyword);
-//
-//        model.addAttribute("comics", comics.getContent());
-//        model.addAttribute("currentPage", page);
-//        model.addAttribute("totalPages", comics.getTotalPages());
-//        model.addAttribute("keyword", keyword);
-//
-//        return "client/home/search";
+//    public List<Comic> autocomplete(@RequestParam String keyword) {
+//        return comicService.searchByName(keyword);
 //    }
+
+    @GetMapping("/api/search/suggestions")
+    public List<ComicSuggestionDTO> getSuggestions(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "10") int limit
+    ) {
+        return comicService.getSearchSuggestions(query, limit);
+    }
 
     @GetMapping("/the-loai/{slug}")
     public String categoryComics( @PathVariable String slug  ,Model model) {
@@ -102,8 +95,13 @@ public class HomeController {
         model.addAttribute("comic", comic);
         model.addAttribute("chapter", chapter);
         model.addAttribute("images", images);
+//        this.comicService.saveReadingHistory();
 
         return "client/home/chapterDetail";
     }
 
+    @GetMapping("/test")
+    public String test() {
+        return "client/home/test";
+    }
 }

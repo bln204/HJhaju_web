@@ -54,10 +54,12 @@
 
 <div class="grid">
     <div class="card" th:each="comic : ${comics}">
-        <a th:href="@{/{slug}(slug=${comic.slug})}"> <img  th:src="${comic.thumb_image}" alt="Truyện"></a>
+        <a th:href="@{/{slug}(slug=${comic.slug})}">
+            <img alt="Comic Image" class="comic-cover" th:src="${#strings.startsWith(comic.thumb_image, 'http') ? comic.thumb_image : '/file-upload/' + comic.thumb_image }" >
+        </a>
         <div class="info">
             <h3 >
-                <a th:href="@{/comic/{slug}(slug=${comic.slug})}"  th:text="${comic.name}" > </a>
+                <a th:href="@{/{slug}(slug=${comic.slug})}"  th:text="${comic.name}" > </a>
             </h3>
             <div class="meta">
                 👁 <span>1000</span> | 👍 <span>500</span> <br>
@@ -83,11 +85,15 @@
 </div>
 
 <hr>
-
-
-
-
-
+<div class="container">
+    <div class="tabs">
+        <p href="#" class="tab active">Gợi ý dành cho bạn</p>
+    </div>
+    <hr>
+</div>
+<div class="grid">
+   <p>hello </p>
+</div>
 
 
 

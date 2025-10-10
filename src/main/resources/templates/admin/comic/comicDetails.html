@@ -33,11 +33,7 @@
                         </div>
                         <!-- 🔹 Nút thêm mới -->
                         <div>
-                            <a style="display:flex; margin-right:10px; text-decoration: none;color: black;"
-                               th:href="@{'/admin/edit/' + ${comic.id}}"><img
-                                    style="height:20px" th:src="@{/image/edit.png}" alt=""><span
-                                    style="margin-left:8px;">Edit comic</span></a>
-                            <a th:href="@{/admin/comics/add}" style="text-decoration: none; /* bỏ gạch chân */
+                            <a th:href="@{'/admin/' + ${comic.slug} + '/add-chapter'}" style="text-decoration: none; /* bỏ gạch chân */
                                                     color: black;">
                                 <div style="display:flex;align-items: center; justify-content:center;"><img
                                         style="height:20px" th:src="@{/image/add.png}" alt=""> <span
@@ -75,7 +71,7 @@
 
                             <b>Chapters:</b>
                             <div class="d-flex gap-2 flex-wrap">
-                                <div th:each="chapter : ${comic.chapter}">
+                                <div th:each="chapter : ${chapters}">
                                     <a th:href="@{'/admin/details/' + ${comic.slug} + '/' + ${chapter.id}}"
                                        type="button"
                                        class="btn btn-secondary"

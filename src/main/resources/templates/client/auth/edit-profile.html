@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chỉnh sửa hồ sơ</title>
+    <link rel="stylesheet" th:href="@{/css/homeStyle.css}">
+</head>
+<body>
+<div th:replace="~{client/layout/header :: header}"></div>
+<div class="container-edit">
+    <h2>Chỉnh sửa hồ sơ</h2>
+    <form th:action="@{/profile/edit}" method="post">
+        <div class="form-group">
+            <label class="lable" for="fullName">Tên hiển thị</label>
+            <input type="text" id="fullName" name="fullName" th:value="${user.fullName}" required>
+        </div>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
+        <button type="submit" class="btn">Lưu thay đổi</button>
+    </form>
+</div>
+</body>
+</html>

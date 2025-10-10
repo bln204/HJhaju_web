@@ -14,5 +14,6 @@ public class Chapter_data {
     private String image_file;
 
     @ManyToOne
+    @JoinColumn(name = "chapter_id")
     private Chapter chapter;
 }
