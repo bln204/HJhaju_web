@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nạp Xu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .payment-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .user-greeting {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .user-greeting h3 {
+            margin-bottom: 5px;
+        }
+
+        .user-greeting p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .amount-section {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .amount-btn {
+            padding: 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .amount-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .custom-amount {
+            margin-bottom: 20px;
+        }
+
+        .custom-amount label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .custom-amount input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        .custom-amount input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .conversion-note {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .create-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .create-btn:hover {
+            transform: scale(1.02);
+        }
+
+        #paymentModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        #paymentModal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .qr-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .qr-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .qr-code {
+            max-width: 300px;
+            width: 100%;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            padding: 10px;
+            background: white;
+        }
+
+        .countdown {
+            text-align: center;
+            font-size: 24px;
+            color: #dc3545;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+        }
+
+        .payment-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .payment-info h4 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row span {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-row strong {
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .copy-btn {
+            padding: 8px 15px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+            transition: background 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+        }
+
+        .alert {
+            padding: 20px;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .alert strong {
+            color: #856404;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .alert ul {
+            margin: 10px 0;
+            padding-left: 25px;
+            color: #856404;
+        }
+
+        .alert li {
+            margin: 8px 0;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .close-btn {
+            flex: 1;
+            padding: 15px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .close-btn:hover {
+            background: #5a6268;
+        }
+
+        @media (max-width: 768px) {
+            .amount-section {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .qr-code {
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="payment-container">
+    <!-- Thông tin user -->
+    <div class="user-greeting">
+        <h3>Xin chào, <span th:text="${user.fullName != null ? user.fullName : user.username}"></span></h3>
+        <p>💰 Ví hiện tại: <strong th:text="${#numbers.formatInteger(user.coinBalance, 0, 'COMMA')} + ' xu'"></strong></p>
+    </div>
+
+    <h2>💰 Nạp Xu Vào Tài Khoản</h2>
+
+    <div class="amount-section">
+        <button class="amount-btn" onclick="selectAmount(10000)">
+            10,000 VNĐ<br>
+            <small>→ 1,000 xu</small>
+        </button>
+        <button class="amount-btn" onclick="selectAmount(50000)">
+            50,000 VNĐ<br>
+            <small>→ 5,000 xu</small>
+        </button>
+        <button class="amount-btn" onclick="selectAmount(100000)">
+            100,000 VNĐ<br>
+            <small>→ 10,000 xu</small>
+        </button>
+        <button class="amount-btn" onclick="selectAmount(500000)">
+            500,000 VNĐ<br>
+            <small>→ 50,000 xu</small>
+        </button>
+    </div>
+
+    <div class="custom-amount">
+        <label>📝 Hoặc nhập số tiền tùy chỉnh:</label>
+        <input type="number" id="customAmount" placeholder="Nhập số tiền (VNĐ)" min="10000" max="50000000">
+    </div>
+
+    <div class="conversion-note">
+        💡 Tỷ lệ quy đổi: 10 VNĐ = 1 Xu
+    </div>
+
+    <button class="create-btn" onclick="createPaymentCustom()">
+        🚀 Tạo Đơn Nạp Tiền
+    </button>
+</div>
+
+<!-- Modal hiển thị QR -->
+<div id="paymentModal">
+    <div class="modal-content">
+        <div class="qr-section">
+            <h3>📱 Quét mã QR để thanh toán</h3>
+            <img id="qrImage" src="" alt="QR Code" class="qr-code">
+            <p style="color: #666; margin-top: 15px;">Mở app ngân hàng → Quét QR → Xác nhận</p>
+        </div>
+
+        <div class="countdown">
+            ⏰ Thời gian còn lại: <span id="countdown">15:00</span>
+        </div>
+
+        <div class="payment-info">
+            <h4>💳 Thông tin chuyển khoản:</h4>
+            <div class="info-row">
+                <span>🏦 Ngân hàng:</span>
+                <strong id="bankName">TPBank</strong>
+            </div>
+            <div class="info-row">
+                <span>💳 Số tài khoản:</span>
+                <div>
+                    <strong id="accountNumber">05658051666</strong>
+                    <button class="copy-btn" onclick="copy('accountNumber')">📋 Copy</button>
+                </div>
+            </div>
+            <div class="info-row">
+                <span>👤 Chủ tài khoản:</span>
+                <strong id="accountHolder">TKPMtX</strong>
+            </div>
+            <div class="info-row">
+                <span>💵 Số tiền:</span>
+                <strong id="amount" style="color: #dc3545; font-size: 20px;"></strong>
+            </div>
+            <div class="info-row">
+                <span>📝 Nội dung CK:</span>
+                <div>
+                    <strong id="orderCode" style="color: #667eea; font-size: 18px;"></strong>
+                    <button class="copy-btn" onclick="copy('orderCode')">📋 Copy</button>
+                </div>
+            </div>
+            <div class="info-row">
+                <span>💰 Xu nhận được:</span>
+                <strong id="coin" style="color: #28a745; font-size: 18px;"></strong>
+            </div>
+        </div>
+
+        <div class="alert">
+            <strong>⚠️ LƯU Ý QUAN TRỌNG:</strong>
+            <ul>
+                <li>✅ Chuyển khoản <strong>ĐÚNG SỐ TIỀN</strong> hiển thị</li>
+                <li>✅ Nhập <strong>CHÍNH XÁC</strong> nội dung chuyển khoản</li>
+                <li>✅ Không thêm hoặc bớt ký tự nào</li>
+                <li>✅ Xu sẽ tự động cộng sau 1-3 phút</li>
+                <li>⏰ Đơn hàng tự động hủy sau 15 phút</li>
+            </ul>
+        </div>
+
+        <div class="modal-actions">
+            <button class="close-btn" onclick="closeModal()">❌ Đóng</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let countdownInterval;
+    let statusCheckInterval;
+
+    function selectAmount(amount) {
+        createPayment(amount);
+    }
+
+    function createPaymentCustom() {
+        let amount = parseInt(document.getElementById('customAmount').value);
+        if (!amount || amount < 10000) {
+            alert('❌ Số tiền tối thiểu là 10,000 VNĐ');
+            return;
+        }
+        if (amount > 50000000) {
+            alert('❌ Số tiền tối đa là 50,000,000 VNĐ');
+            return;
+        }
+        createPayment(amount);
+    }
+
+    function createPayment(amount) {
+        fetch('/payment/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({amount: amount})
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    alert('❌ Lỗi: ' + data.error);
+                    return;
+                }
+
+                // Hiển thị modal
+                document.getElementById('paymentModal').classList.add('active');
+
+                // Điền thông tin
+                document.getElementById('qrImage').src = data.qrCodeUrl;
+                document.getElementById('bankName').textContent = data.bankName;
+                document.getElementById('accountNumber').textContent = data.bankAccount;
+                document.getElementById('accountHolder').textContent = data.accountHolder;
+                document.getElementById('amount').textContent = data.amount.toLocaleString() + ' VNĐ';
+                document.getElementById('orderCode').textContent = data.orderCode;
+                document.getElementById('coin').textContent = data.coin.toLocaleString() + ' xu';
+
+                // Bắt đầu đếm ngược
+                startCountdown(data.expiresIn * 60);
+
+                // Kiểm tra trạng thái thanh toán
+                checkPaymentStatus(data.orderCode);
+            })
+            .catch(err => {
+                alert('❌ Có lỗi xảy ra: ' + err.message);
+            });
+    }
+
+    function copy(elementId) {
+        let text = document.getElementById(elementId).textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            alert('✅ Đã sao chép: ' + text);
+        }).catch(() => {
+            // Fallback cho trình duyệt cũ
+            let input = document.createElement('input');
+            input.value = text;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            alert('✅ Đã sao chép: ' + text);
+        });
+    }
+
+    function startCountdown(seconds) {
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        countdownInterval = setInterval(() => {
+            let minutes = Math.floor(seconds / 60);
+            let secs = seconds % 60;
+            document.getElementById('countdown').textContent =
+                `${minutes}:${secs.toString().padStart(2, '0')}`;
+
+            if (seconds <= 0) {
+                clearInterval(countdownInterval);
+                alert('⏰ Đơn hàng đã hết hạn!');
+                closeModal();
+            }
+            seconds--;
+        }, 1000);
+    }
+
+    function checkPaymentStatus(orderCode) {
+        if (statusCheckInterval) clearInterval(statusCheckInterval);
+
+        statusCheckInterval = setInterval(() => {
+            fetch(`/payment/status/${orderCode}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'SUCCESS') {
+                        clearInterval(statusCheckInterval);
+                        clearInterval(countdownInterval);
+                        alert('🎉 Thanh toán thành công! Đã cộng ' + data.coin.toLocaleString() + ' xu vào tài khoản.');
+                        closeModal();
+                        location.reload();
+                    } else if (data.status === 'EXPIRED') {
+                        clearInterval(statusCheckInterval);
+                        alert('⏰ Đơn hàng đã hết hạn!');
+                        closeModal();
+                    }
+                })
+                .catch(err => console.error('Error checking status:', err));
+        }, 5000); // Check mỗi 5 giây
+    }
+
+    function closeModal() {
+        document.getElementById('paymentModal').classList.remove('active');
+        if (countdownInterval) clearInterval(countdownInterval);
+        if (statusCheckInterval) clearInterval(statusCheckInterval);
+    }
+</script>
+
+</body>
+</html>

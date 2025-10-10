@@ -24,7 +24,7 @@ public interface ComicRepository extends JpaRepository<Comic, String> {
 
     Page<Comic> findByNameContainingIgnoreCase(String query, Pageable pageable);
 
-    List<Comic> findByCategorySlug(String slug);
+    Page<Comic> findByCategorySlug(String slug, Pageable pageable);
 
     void deleteById(String id);
 }

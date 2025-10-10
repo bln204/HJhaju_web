@@ -20,4 +20,7 @@ public interface ChapterRepository extends JpaRepository<Chapter, String> {
 
     void deleteByComic(Comic comic);
 
+    List<Chapter> findTop2ByComicOrderByCreatedAtDesc(Comic comic);
+
+
 }

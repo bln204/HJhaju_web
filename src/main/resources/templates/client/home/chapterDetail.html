@@ -6,6 +6,7 @@
     <title>Đọc Truyện</title>
     <link rel="stylesheet" th:href="@{/css/chapterDetailStyle.css}">
     <link rel="stylesheet" th:href="@{/css/searchStyle.css}">
+    <link rel="stylesheet" th:href="@{/css/login.css}">
 
 
 </head>
@@ -56,7 +57,22 @@
                 </div>
             </div>
 
-            <button class="login-btn">Đăng Nhập</button>
+            <div class="user-container">
+                <th:block th:if="${#authentication.getPrincipal() != null and #authentication.getPrincipal() != 'anonymousUser'}">
+                    <span class="user-name" th:text="${#authentication.getPrincipal().fullName ?: 'Người dùng'}"></span>
+                    <div class="dropdown-username">
+                        <a th:href="@{/profile/edit}">Đổi tên hiển thị</a>
+                        <a th:href="@{/profile/change-password}">Đổi mật khẩu</a>
+                        <form th:action="@{/logout}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
+                            <button type="submit">Đăng xuất</button>
+                        </form>
+                    </div>
+                </th:block>
+                <th:block th:unless="${#authentication.getPrincipal() != null and #authentication.getPrincipal() != 'anonymousUser'}">
+                    <a th:href="@{/login}">Đăng nhập</a>
+                </th:block>
+            </div>
             <button class="menu-btn" onclick="toggleSidebar()">📋 MENU</button>
 
         </div>
@@ -75,11 +91,17 @@
                 <span class="separator">〉</span>
                 <a th:href="@{/{slug}(slug=${comic.slug})}" th:text="${comic.name}"></a>
                 <span class="separator">〉</span>
-                <a th:text="'Chương ' + ${chapter.name}"></a>
+                <a th:text="'Chương ' + ${chapter.name}"></a >
+            </div>
+
+            <div id="chapterNav"
+                 th:data-current-chapter="${chapter.name}"
+                 th:data-comic-slug="${comic.slug}"
+                 th:data-chapters="${chapterNames}">
             </div>
 
             <div class="chapter-navigation">
-                <button class="nav-btn prev-btn" onclick="previousChapter()">
+                <button id="prevBtn" class="nav-btn prev-btn" onclick="previousChapter()">
                     <span class="nav-icon">⟨</span>
                     <span class="nav-text">
                         <small>TRƯỚC</small>
@@ -93,7 +115,7 @@
                     </span>
                 </button>
 
-                <button class="nav-btn next-btn" onclick="nextChapter()">
+                <button id="nextBtn" class="nav-btn next-btn" onclick="nextChapter()">
                     <span class="nav-icon">⟩</span>
                     <span class="nav-text">
                         <small>SAU</small>
@@ -112,7 +134,7 @@
 
         <div class="breadcrumb-section">
             <div class="chapter-navigation">
-                <button class="nav-btn prev-btn" onclick="previousChapter()">
+                <button id="prevBtnBottom"  class="nav-btn prev-btn" onclick="previousChapter()">
                     <span class="nav-icon">⟨</span>
                     <span class="nav-text">
                         <small>TRƯỚC</small>
@@ -126,7 +148,7 @@
                     </span>
                 </button>
 
-                <button class="nav-btn next-btn" onclick="nextChapter()">
+                <button id="nextBtnBottom" class="nav-btn next-btn" onclick="nextChapter()">
                     <span class="nav-icon">⟩</span>
                     <span class="nav-text">
                         <small>SAU</small>
@@ -250,145 +272,7 @@
 </div>
 
 
-<script>
-    // Show Chapter Selector function
-    function showChapterSelector() {
-        toggleChapterSelector();
-    }
-
-    // Toggle Chapter Selector
-    function toggleChapterSelector() {
-        const chapterSelector = document.getElementById('chapterSelector');
-        const chapterOverlay = document.getElementById('chapterOverlay');
-
-        chapterSelector.classList.toggle('active');
-        chapterOverlay.classList.toggle('active');
-
-        // Focus vào search box khi mở
-        if (chapterSelector.classList.contains('active')) {
-            setTimeout(() => {
-                document.getElementById('chapterSearchInput').focus();
-            }, 400);
-        }
-    }
-
-    // Search Chapters function
-    function searchChapters(searchTerm) {
-        const chapterList = document.getElementById('chapterList');
-        const items = chapterList.querySelectorAll('.chapter-list-item');
-
-        items.forEach(item => {
-            const chapterName = item.querySelector('.chapter-name').textContent.toLowerCase();
-            if (chapterName.includes(searchTerm.toLowerCase()) || searchTerm === '') {
-                item.style.display = 'flex';
-            } else {
-                item.style.display = 'none';
-            }
-        });
-    }
-
-    // Select Chapter function
-    function selectChapter(chapterNumber) {
-        // Update current chapter in sidebar
-        const currentChapterSpan = document.querySelector('.sidebar-item.active span');
-        if (currentChapterSpan) {
-            currentChapterSpan.textContent = `Chương ${chapterNumber}`;
-        }
-
-        // Update breadcrumb
-        const breadcrumbSpan = document.querySelector('.breadcrumb span:last-child');
-        if (breadcrumbSpan) {
-            breadcrumbSpan.textContent = `Chương ${chapterNumber}`;
-        }
-
-        // Close chapter selector
-        toggleChapterSelector();
-    }
-
-    // Toggle Sidebar
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-        const content = document.getElementById('mainContent');
-
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-
-        if (window.innerWidth > 768) {
-            content.classList.toggle('with-sidebar');
-        }
-    }
-
-    // Navigation functions
-    function previousChapter() {
-        console.log('Chuyển sang Chapter trước');
-        alert('Chuyển sang Chapter trước');
-    }
-
-    function nextChapter() {
-        console.log('Chuyển sang Chapter sau');
-        alert('Chuyển sang Chapter sau');
-    }
-
-    function showChapterList() {
-        console.log('Hiển thị danh sách chương');
-        toggleSidebar();
-    }
-
-    function scrollToTop() {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    }
-
-    // Close sidebar when clicking on sidebar items
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebarItems = document.querySelectorAll('.sidebar-item');
-        sidebarItems.forEach(item => {
-            item.addEventListener('click', function(e) {
-                if (this.onclick !== scrollToTop) {
-                    console.log('Clicked:', this.textContent.trim());
-                }
-            });
-        });
-    });
-
-    // Handle responsive behavior
-    window.addEventListener('resize', function() {
-        const sidebar = document.getElementById('sidebar');
-        const content = document.getElementById('mainContent');
-
-        if (window.innerWidth <= 768) {
-            content.classList.remove('with-sidebar');
-        } else if (sidebar.classList.contains('active')) {
-            content.classList.add('with-sidebar');
-        }
-    });
-
-    // Close sidebar with Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            const sidebar = document.getElementById('sidebar');
-            const chapterSelector = document.getElementById('chapterSelector');
-
-            if (chapterSelector.classList.contains('active')) {
-                toggleChapterSelector();
-            } else if (sidebar.classList.contains('active')) {
-                toggleSidebar();
-            }
-        }
-    });
-
-    // Clear search when chapter selector closes
-    document.addEventListener('click', function(e) {
-        const chapterSelector = document.getElementById('chapterSelector');
-        if (!chapterSelector.classList.contains('active')) {
-            document.getElementById('chapterSearchInput').value = '';
-            searchChapters(''); // Reset search
-        }
-    });
-</script>
+<script th:src="@{/js/chapterDetail.js}"></script>
 <script th:src="@{/js/search.js}"></script>
 
 </body>

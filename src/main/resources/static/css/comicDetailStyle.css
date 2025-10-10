@@ -308,3 +308,140 @@ body {
     margin-right: 195px;
 }
 
+
+/* Header với navigation */
+.chapters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.chapters-header h2 {
+    color: white;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.chapter-navigation {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chapter-navigation label {
+    color: rgba(255,255,255,0.8);
+    font-size: 18px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.chapter-input {
+    width: 120px;
+    padding: 10px 15px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.chapter-input:focus {
+    outline: none;
+    background: rgba(255,255,255,0.15);
+    border-color: #ff6b6b;
+    box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
+}
+
+.chapter-input::placeholder {
+    color: rgba(255,255,255,0.4);
+}
+
+/* Input number arrows */
+.chapter-input::-webkit-inner-spin-button,
+.chapter-input::-webkit-outer-spin-button {
+    opacity: 1;
+    height: 30px;
+}
+
+.goto-btn {
+    padding: 10px 20px;
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.goto-btn:hover {
+    background: #ff5252;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+}
+
+.goto-btn:active {
+    transform: translateY(0);
+}
+
+.goto-btn:disabled {
+    background: rgba(255,255,255,0.2);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.error-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #ff5252;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(255, 82, 82, 0.4);
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 1000;
+    animation: slideInRight 0.3s ease;
+    display: none;
+}
+
+.error-message.show {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .chapters-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .chapter-navigation {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .chapter-input {
+        flex: 1;
+        max-width: 150px;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

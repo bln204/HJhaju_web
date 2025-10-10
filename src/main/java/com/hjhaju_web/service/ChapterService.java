@@ -1,5 +1,7 @@
 package com.hjhaju_web.service;
 
+import com.hjhaju_web.Util.TimeUtils;
+import com.hjhaju_web.dto.ChapterDTO;
 import com.hjhaju_web.model.Chapter;
 import com.hjhaju_web.model.Chapter_data;
 import com.hjhaju_web.model.Comic;
@@ -31,5 +33,28 @@ public class ChapterService {
         return chapterRepository.findByComicAndName(comic, name)
                 .orElseThrow(() -> new RuntimeException("Chapter not found"));
     }
+
+    public List<ChapterDTO> getChaptersByComic(Comic comic) {
+        return chapterRepository.findByComic(comic)
+                .stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
+    public List<ChapterDTO> getLatestTwoChaptersByComic(Comic comic) {
+        return chapterRepository.findTop2ByComicOrderByCreatedAtDesc(comic)
+                .stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
+    public ChapterDTO toDTO(Chapter chapter) {
+        ChapterDTO dto = new ChapterDTO();
+        dto.setId(chapter.getId());
+        dto.setName(chapter.getName());
+        dto.setTimeAgo(TimeUtils.timeAgo(chapter.getCreatedAt()));
+        return dto;
+    }
+
 
 }

@@ -7,13 +7,19 @@ body {
 }
 
 .navbar {
-    position: relative;
     top: 0;
     left: 0;
+    right: 0;
     width: 100%;       /* full background */
     background-color: #0f172a;
     color: white;
-    z-index: 10;     /* đè lên slider */
+    position: fixed;
+    z-index: 2000;
+    transition: transform 0.3s ease-in-out;
+}
+
+.navbar.hidden {
+    transform: translateY(-100%);
 }
 
 /* Container bên trong navbar */
@@ -75,6 +81,11 @@ body {
     align-items: center;
     flex-direction: column;
     gap: 15px;
+    margin-top: 50px;
+}
+
+.breadcrumb-section.hidden {
+    transform: translateY(-100%);
 }
 
 .breadcrumb {

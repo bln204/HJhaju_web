@@ -2,6 +2,8 @@ package com.hjhaju_web.controller.clientController;
 
 import com.hjhaju_web.model.User;
 import com.hjhaju_web.service.UserService;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -9,12 +11,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
+@Slf4j
 public class AuthController {
     @Autowired
     private UserService userService;
@@ -27,16 +31,21 @@ public class AuthController {
 
     @GetMapping("/register")
     public String register(Model model) {
+        System.out.println("/register");
         model.addAttribute("user", new User());
         return "client/auth/register";
     }
 
     @PostMapping("/signup")
-    public String registerUser(@ModelAttribute User user, Model model) {
+    public String registerUser(@Valid @ModelAttribute User user, BindingResult bindingResult, Model model) {
+        log.info("Processing POST /signup, user: username={}, email={}, fullName={}, password={}",
+                user.getUsername(), user.getEmail(), user.getFullName(), user.getPassword());
         try {
-            userService.registerUser(user);
+            userService.registerUser(user, bindingResult);
+            log.info("User registered successfully: {}", user.getEmail());
             return "redirect:/login?signupSuccess=true";
         } catch (Exception e) {
+            log.error("Error registering user: {}", e.getMessage(), e);
             model.addAttribute("signupError", e.getMessage());
             model.addAttribute("user", user);
             return "client/auth/register";

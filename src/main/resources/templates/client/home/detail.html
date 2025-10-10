@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
-    <title th:text="${comic.name}"> </title>
-<!--    <link rel="stylesheet" href="/css/comic-detail.css">-->
+    <title th:text="${comic.name}"></title>
     <link rel="stylesheet" th:href="@{/css/comicDetailStyle.css}">
     <link rel="stylesheet" th:href="@{/css/homeStyle.css}">
     <link rel="stylesheet" th:href="@{/css/searchStyle.css}">
-
+    <link rel="stylesheet" th:href="@{/css/login.css}">
 
 </head>
 <body>
@@ -36,8 +35,8 @@
             </p>
 
             <div class="rating">
-                ⭐⭐⭐⭐⭐ <span >5</span>
-                <span class="count">(<span >12</span> đánh giá)</span>
+                ⭐⭐⭐⭐⭐ <span>5</span>
+                <span class="count">(<span>12</span> đánh giá)</span>
             </div>
 
             <div class="chapters-count">
@@ -45,8 +44,11 @@
             </div>
 
             <div class="actions">
-                <button class="btn yellow" >📖 Đọc ngay</button>
-                <button class="btn purple" >⭐ Theo dõi</button>
+                <a class="btn yellow"
+                   th:href="@{/{slug}/chuong-{name}(slug=${comic.slug}, name=${comic.chapter[0].name})}"
+                   style="text-decoration: none">
+                    📖 Đọc ngay</a>
+                <button class="btn purple">⭐ Theo dõi</button>
                 <button class="btn white"> 🔔 Thông báo</button>
             </div>
         </div>
@@ -54,22 +56,41 @@
         <!-- Phải: thông tin phụ -->
         <div class="right">
             <p><span class="label">Tác giả:</span> <span class="value" th:text="${comic.author}">Updating</span></p>
-            <p><span class="label">Nhóm dịch:</span> <span class="value" >Đang cập nhật</span></p>
-            <p><span class="label">Trạng thái:</span> <span class="value" th:text="${comic.status}">Đang tiến hành</span></p>
+            <p><span class="label">Nhóm dịch:</span> <span class="value">Đang cập nhật</span></p>
+            <p><span class="label">Trạng thái:</span> <span class="value"
+                                                            th:text="${comic.status}">Đang tiến hành</span></p>
             <p><span class="label">Thể loại:</span>
                 <span th:each="cat, iter : ${comic.category}">
                     <span class="value" th:text="${cat.name}"></span><span th:if="${!iter.last}">, </span>
                 </span>
             </p>
-            <p><span class="label">Lượt xem:</span> <span class="value" >0</span></p>
-            <p><span class="label">Lượt theo dõi:</span> <span class="value" >0</span></p>
+            <p><span class="label">Lượt xem:</span> <span class="value">0</span></p>
+            <p><span class="label">Lượt theo dõi:</span> <span class="value">0</span></p>
         </div>
 
     </div>
 
     <div class="content-section">
         <div class="chapters-list">
-            <h2>Danh sách chương</h2>
+
+            <div class="chapters-header">
+                <h2>Danh Sách Chương</h2>
+
+                <div class="chapter-navigation">
+                    <label for="chapterNumberInput">CHƯƠNG</label>
+                    <input
+                            type="text"
+                            id="chapterNumberInput"
+                            class="chapter-input"
+                            placeholder="Chương"
+                            autocomplete="off"
+                            th:data-comic-slug="${comic.slug}"
+                    >
+
+                    <button class="goto-btn" onclick="goToChapter()">ĐI TỚI</button>
+                </div>
+            </div>
+
             <table>
                 <thead>
                 <tr>
@@ -78,11 +99,13 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="chapter,iter : ${comic.chapter}" th:classappend="${iter.index} >= 10 ? 'hidden' : ''">
+                <tr th:each="chapter,iter : ${chapters}" th:data-chapter="${chapter.name}"
+                    th:classappend="${iter.index} >= 10 ? 'hidden' : ''">
                     <td colspan="2" class="chapter-row">
-                        <a th:href="@{/{slug}/chuong-{name}(slug=${comic.slug}, name=${chapter.name})}" class="chapter-link">
+                        <a th:href="@{/{slug}/chuong-{name}(slug=${comic.slug}, name=${chapter.name})}"
+                           class="chapter-link">
                             <span class="chapter-name">Chương <span th:text="${chapter.name}"></span></span>
-                            <span class="chapter-time" >45 ngày trước</span>
+                            <span class="chapter-time" th:text="${chapter.timeAgo}"></span>
                         </a>
                     </td>
                 </tr>
@@ -102,11 +125,13 @@
         </div>
     </div>
 
+    <div class="error-message" id="errorMessage"></div>
+
+
 </div>
-
-
 
 <script th:src="@{/js/search.js}"></script>
 <script th:src="@{/js/comic-detail.js}"></script>
 </body>
+
 </html>

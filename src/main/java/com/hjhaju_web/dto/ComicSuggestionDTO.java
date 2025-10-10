@@ -6,7 +6,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ComicSuggestionDTO {
+public class  ComicSuggestionDTO {
     private String name;
 
     private String thumbImage;

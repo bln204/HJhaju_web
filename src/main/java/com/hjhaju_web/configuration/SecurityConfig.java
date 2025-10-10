@@ -6,11 +6,11 @@ import com.hjhaju_web.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.Authentication;
@@ -21,6 +21,8 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.IOException;
 
@@ -38,16 +40,13 @@ public class SecurityConfig {
         this.userService = userService;
     }
 
-    @Bean
-    public AuthenticationSuccessHandler myAuthenticationSuccessHandler() {
-        return new CustomSuccessHandler();
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configure(http))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register", "/", "/css/**", "/js/**", "/image/**", "/forgot-password", "/verify-otp", "/resend-otp").permitAll()
+                        .requestMatchers("/login", "/register", "/signup", "/", "/css/**", "/js/**", "/image/**", "/forgot-password", "/verify-otp", "/resend-otp", "/payment/webhook").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
@@ -70,10 +69,26 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID")
                         .permitAll()
                 )
-                .csrf(csrf -> csrf.disable()); // Tắt CSRF để đơn giản; bật trong production với xử lý phù hợp
-
+                .csrf(csrf -> csrf.disable());
         return http.build();
     }
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOrigins(
+                                "https://peremptorily-sleetier-kamari.ngrok-free.dev",
+                                "http://localhost:8080"
+                        )
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowCredentials(true);
+            }
+        };
+    }
+
 
     @Bean
     public AuthenticationTrustResolver trustResolver() {

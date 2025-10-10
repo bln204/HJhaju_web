@@ -1,5 +1,7 @@
 package com.hjhaju_web.service;
 
+import com.hjhaju_web.dto.ChapterDTO;
+import com.hjhaju_web.dto.ComicDTO;
 import com.hjhaju_web.model.Chapter;
 import com.hjhaju_web.model.Chapter_data;
 import com.hjhaju_web.dto.ComicSuggestionDTO;
@@ -23,11 +25,14 @@ public class ComicService {
     private final ComicRepository comicRepository;
     private final ChapterRepository chapterRepository;
     private final ChapterDataRepository chapterDataRepository;
+    private final ChapterService chapterService;
 
-    public ComicService(ComicRepository comicRepository, ChapterRepository chapterRepository, ChapterDataRepository chapterDataRepository) {
+
+    public ComicService(ComicRepository comicRepository, ChapterRepository chapterRepository, ChapterDataRepository chapterDataRepository, ChapterService chapterService) {
         this.comicRepository = comicRepository;
         this.chapterRepository = chapterRepository;
         this.chapterDataRepository = chapterDataRepository;
+        this.chapterService = chapterService;
     }
 
     public Page<Comic> getComic(int page, int size) {
@@ -76,10 +81,10 @@ public class ComicService {
         return this.comicRepository.save(comic);
     }
 
-    public List<Comic> findByCategorySlug(String slug) {
-        return comicRepository.findByCategorySlug(slug);
+    public Page<Comic> findByCategorySlug(String slug, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return comicRepository.findByCategorySlug(slug, pageable);
     }
-
     public void deleteComic(String id) {
         Optional<Comic> optionalComic = this.comicRepository.findById(id);
         if(optionalComic.isPresent()) {
@@ -91,5 +96,16 @@ public class ComicService {
             this.chapterRepository.deleteByComic(comic);
             this.comicRepository.deleteById(id);
         }
+    }
+
+    public ComicDTO toDTO(Comic comic) {
+        ComicDTO dto = new ComicDTO();
+        dto.setId(comic.getId());
+        dto.setName(comic.getName());
+        dto.setSlug(comic.getSlug());
+        dto.setThumb_image(comic.getThumb_image());
+        List<ChapterDTO> latestChapters = chapterService.getLatestTwoChaptersByComic(comic);
+        dto.setLatestChapters(latestChapters);
+        return dto;
     }
 }
