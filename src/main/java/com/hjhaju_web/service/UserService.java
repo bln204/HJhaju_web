@@ -1,10 +1,16 @@
 package com.hjhaju_web.service;
 
+import com.hjhaju_web.dto.CommentDTO;
+import com.hjhaju_web.model.Comic;
+import com.hjhaju_web.model.Comment;
 import com.hjhaju_web.model.User;
+import com.hjhaju_web.repository.ComicRepository;
+import com.hjhaju_web.repository.CommentRepository;
 import com.hjhaju_web.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +24,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +44,12 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private Validator validator;
+
+    @Autowired
+    private CommentRepository commentRepository;
+
+    @Autowired
+    private ComicRepository comicRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -222,5 +235,69 @@ public class UserService implements UserDetailsService {
                 password.length() >= 8 &&
                 password.matches(".*[A-Z].*") &&
                 password.matches(".*\\d.*");
+    }
+
+    @Transactional
+    public CommentDTO addComment(String comicId, String content, String userEmail, Long parentId) {
+        System.out.println("Adding comment for comicId: " + comicId + ", user: " + userEmail + ", content: " + content + ", parentId: " + parentId);
+        Optional<User> userOptional = userRepository.findByEmail(userEmail);
+        Optional<Comic> comicOptional = comicRepository.findById(comicId);
+
+        if (userOptional.isEmpty()) {
+            System.err.println("User not found with email: " + userEmail);
+            throw new IllegalArgumentException("User not found with email: " + userEmail);
+        }
+        if (comicOptional.isEmpty()) {
+            System.err.println("Comic not found with id: " + comicId);
+            throw new IllegalArgumentException("Comic not found with id: " + comicId);
+        }
+
+        Comment comment = new Comment();
+        comment.setContent(content);
+        comment.setUser(userOptional.get());
+        comment.setComic(comicOptional.get());
+        comment.setCreatedAt(LocalDateTime.now());
+
+        if (parentId != null) {
+            Optional<Comment> parentOptional = commentRepository.findById(parentId);
+            if (parentOptional.isPresent()) {
+                comment.setParent(parentOptional.get());
+            } else {
+                System.err.println("Parent comment not found with id: " + parentId);
+                throw new IllegalArgumentException("Parent comment not found with id: " + parentId);
+            }
+        }
+
+        Comment savedComment = commentRepository.save(comment);
+        System.out.println("Comment saved: " + savedComment.getId());
+
+        // Chuyển đổi sang CommentDTO
+        CommentDTO commentDTO = new CommentDTO();
+        commentDTO.setId(savedComment.getId());
+        commentDTO.setContent(savedComment.getContent());
+        commentDTO.setCreatedAt(savedComment.getCreatedAt());
+        commentDTO.setParentId(parentId); // Thêm parentId vào DTO
+
+        CommentDTO.UserDTO userDTO = new CommentDTO.UserDTO();
+        userDTO.setId(savedComment.getUser().getId());
+        userDTO.setFullName(savedComment.getUser().getFullName());
+        commentDTO.setUser(userDTO);
+
+        CommentDTO.ComicDTO comicDTO = new CommentDTO.ComicDTO();
+        comicDTO.setId(savedComment.getComic().getId());
+        comicDTO.setName(savedComment.getComic().getName());
+        commentDTO.setComic(comicDTO);
+
+        return commentDTO;
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<Comment> getCommentsByComicId(String comicId) {
+        // Chỉ lấy các bình luận chính (parent_id = NULL) và sắp xếp theo thời gian tạo giảm dần
+        List<Comment> comments = commentRepository.findByComicIdAndParentIsNullOrderByCreatedAtDesc(comicId);
+        // Nạp các reply cho mỗi bình luận
+        comments.forEach(comment -> Hibernate.initialize(comment.getReplies()));
+        return comments;
     }
 }

@@ -2,14 +2,9 @@ package com.hjhaju_web.controller.clientController;
 
 
 import com.hjhaju_web.dto.ComicSuggestionDTO;
-import com.hjhaju_web.model.Category;
-import com.hjhaju_web.model.Chapter;
-import com.hjhaju_web.model.Chapter_data;
-import com.hjhaju_web.model.Comic;
-import com.hjhaju_web.service.CategoryService;
-import com.hjhaju_web.service.ChapterDataService;
-import com.hjhaju_web.service.ChapterService;
-import com.hjhaju_web.service.ComicService;
+import com.hjhaju_web.model.*;
+import com.hjhaju_web.repository.ComicRepository;
+import com.hjhaju_web.service.*;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
@@ -30,7 +25,8 @@ public class HomeController {
     private final CategoryService categoryService;
     private final ChapterService chapterService;
     private final ChapterDataService chapterDataService;
-
+    private final UserService userService;
+    private final ComicRepository comicRepository;
 
 
 
@@ -75,9 +71,11 @@ public class HomeController {
         return "client/home/category";
     }
 
-    @GetMapping("/{slug}")
-    public String comicDetails(Model model,@PathVariable("slug") String slug) {
-        model.addAttribute("comic", comicService.findBySlug(slug));
+   @GetMapping("/{slug}")
+    public String comicDetails(Model model, @PathVariable("slug") String slug) {
+        Comic comicOptional = comicService.findBySlug(slug);
+        model.addAttribute("comic", comicOptional);
+        model.addAttribute("comments", userService.getCommentsByComicId(comicOptional.getId()));
         return "client/home/detail";
     }
 

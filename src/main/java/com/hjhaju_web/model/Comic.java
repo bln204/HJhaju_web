@@ -45,4 +45,7 @@ public class Comic {
     @OneToMany(mappedBy = "comic", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chapter> chapter = new ArrayList<>();
 
+    @OneToMany(mappedBy = "comic")
+    private List<Comment> comments;
+
 }

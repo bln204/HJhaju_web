@@ -39,7 +39,7 @@ public class User implements UserDetails, OidcUser {
     @Size(max = 100, message = "Họ và tên không được vượt quá 100 ký tự")
     private String fullName;
 
-    @NotBlank(message = "Vai trò không được để trống")
+
     private String role;
 
     @Column(name = "otp")

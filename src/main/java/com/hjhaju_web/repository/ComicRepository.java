@@ -17,6 +17,7 @@ public interface ComicRepository extends JpaRepository<Comic, String> {
 
     Optional<Comic> findById(String id);
 
+//    Comic findBySlug(String slug);
     Comic findBySlug(String slug);
 
 //    Optional<Comic> findBySlug(String Slug);

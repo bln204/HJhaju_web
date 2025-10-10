@@ -21,4 +21,6 @@ public class ChapterDataService {
     public List<Chapter_data> getChapterDataByChapterId(String chapterId) {
         return chapterDataRepository.findAllByChapterIdOrderByIdAsc(chapterId);
     }
+
+    
 }
