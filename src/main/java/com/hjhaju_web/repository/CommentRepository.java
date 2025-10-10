@@ -9,4 +9,8 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByComicIdOrderByCreatedAtDesc(String comicId);
+
+    List<Comment> findByComicIdAndParentIsNullOrderByCreatedAtDesc(String comicId); // Lấy bình luận cấp cao nhất
+
+    List<Comment> findByParentIdOrderByCreatedAtAsc(Long parentId); // Lấy reply của một bình luận
 }
