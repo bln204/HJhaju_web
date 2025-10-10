@@ -24,7 +24,7 @@
 
         <!-- Trái: ảnh -->
         <div class="left">
-            <img th:src="${comic.thumb_image}" alt="Comic Image" class="comic-cover">
+            <img alt="Comic Image" class="comic-cover" th:src="${#strings.startsWith(comic.thumb_image, 'http') ? comic.thumb_image : '/file-upload/' + comic.thumb_image }" >
         </div>
 
         <!-- Giữa: nội dung chính -->

@@ -1,12 +1,11 @@
 package com.hjhaju_web.service;
 
-import com.hjhaju_web.model.Chapter;
-import com.hjhaju_web.model.Chapter_data;
+import com.hjhaju_web.model.*;
 import com.hjhaju_web.dto.ComicSuggestionDTO;
-import com.hjhaju_web.model.Comic;
 import com.hjhaju_web.repository.ChapterDataRepository;
 import com.hjhaju_web.repository.ChapterRepository;
 import com.hjhaju_web.repository.ComicRepository;
+import com.hjhaju_web.repository.HistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,11 +23,16 @@ public class ComicService {
     private final ComicRepository comicRepository;
     private final ChapterRepository chapterRepository;
     private final ChapterDataRepository chapterDataRepository;
+    private final HistoryRepository historyRepository;
 
-    public ComicService(ComicRepository comicRepository, ChapterRepository chapterRepository, ChapterDataRepository chapterDataRepository) {
+    public ComicService(ComicRepository comicRepository
+            , ChapterRepository chapterRepository
+            , ChapterDataRepository chapterDataRepository
+            , HistoryRepository historyRepository) {
         this.comicRepository = comicRepository;
         this.chapterRepository = chapterRepository;
         this.chapterDataRepository = chapterDataRepository;
+        this.historyRepository = historyRepository;
     }
 
     public Page<Comic> getComic(int page, int size) {
@@ -76,15 +81,20 @@ public class ComicService {
     }
 
     public void deleteComic(String id) {
-        Optional<Comic> optionalComic = this.comicRepository.findById(id);
-        if(optionalComic.isPresent()) {
-            Comic comic = optionalComic.get();
-            List<Chapter> chapters = this.chapterRepository.findByComic(comic);
-            for(Chapter chapter : chapters) {
-                this.chapterDataRepository.deleteByChapter(chapter);
-            }
-            this.chapterRepository.deleteByComic(comic);
-            this.comicRepository.deleteById(id);
-        }
+        comicRepository.deleteById(id);
     }
+
+//    public void saveReadingHistory(User user, Comic comic, Chapter chapter) {
+//        History history = historyRepository.findByUserAndComic(user, comic)
+//                .orElseGet(() -> {
+//                    History h = new History();
+//                    h.setUser(user);
+//                    h.setComic(comic);
+//                    return h;
+//                });
+//
+//        history.setChapter(chapter);
+//        history.setLastReadAt(LocalDateTime.now());
+//        this.historyRepository.save(history);
+//    }
 }

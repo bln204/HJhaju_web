@@ -93,8 +93,8 @@
 
         <!-- Chapter Content -->
         <div class="chapter-container">
-            <div class="chapter-content" th:each="images : ${images}">
-                <img th:src="${images.image_file}" alt="" class="manga-image">
+            <div class="chapter-content col col-8" th:each="images : ${images}">
+                <img style="object-fit: cover; width:100%;height:auto;" th:src="${#strings.startsWith(images.image_file, 'http') ? images.image_file : '/file-upload/' + images.image_file }" alt="">
             </div>
         </div>
 

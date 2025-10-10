@@ -5,9 +5,11 @@ import com.hjhaju_web.model.Chapter_data;
 import com.hjhaju_web.model.Comic;
 import com.hjhaju_web.repository.ChapterDataRepository;
 import com.hjhaju_web.repository.ChapterRepository;
+import com.hjhaju_web.repository.ComicRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,15 +17,20 @@ import java.util.Optional;
 public class ChapterService {
 
     private final ChapterDataRepository chapterDataRepository;
-
     private final ChapterRepository chapterRepository;
+    private final ComicRepository comicRepository;
 
-    public ChapterService(ChapterDataRepository chapterDataRepository, ChapterRepository chapterRepository) {
+    public ChapterService(ChapterDataRepository chapterDataRepository, ChapterRepository chapterRepository, ComicRepository comicRepository) {
         this.chapterDataRepository = chapterDataRepository;
         this.chapterRepository = chapterRepository;
+        this.comicRepository = comicRepository;
     }
 
-    public List<Chapter_data> findByChapter(String id){
+    public List<Chapter> findByComic(Comic comic) {
+        return this.chapterRepository.findByComicOrderByCreatedAtAsc(comic);
+    }
+
+    public List<Chapter_data> findByChapter(String id) {
         return this.chapterDataRepository.findByChapterId(id);
     }
 
@@ -32,4 +39,37 @@ public class ChapterService {
                 .orElseThrow(() -> new RuntimeException("Chapter not found"));
     }
 
+    public void saveNewChapter(Chapter chapter, Comic comic, List<String> imageFiles) {
+        chapter.setId(GenerateUUID.generateId());
+        chapter.setComic(comic);
+
+        comic.getChapter().add(chapter);
+
+        // chỉ save comic, nhờ cascade sẽ save chapter
+        this.comicRepository.save(comic);
+
+        int imagePage = 0;
+        for (String imageFile : imageFiles) {
+            Chapter_data chapterData = new Chapter_data();
+            chapterData.setChapter(chapter);
+            chapterData.setImage_file(imageFile);
+            imagePage++;
+            chapterData.setImage_page(String.valueOf(imagePage));
+            this.chapterDataRepository.save(chapterData);
+        }
+    }
+
+
+    public String newChapter(Comic comic) {
+        List<String> chapters = this.chapterRepository.findNameByComicOrderByCreatedAtAsc(comic);
+        if (chapters == null || chapters.isEmpty()) {
+            return "1";
+        }
+        int last = Integer.parseInt(chapters.get(chapters.size() - 1));
+        return String.valueOf(last + 1);
+    }
+
+    public void deleteChapter(String id) {
+        this.chapterRepository.deleteById(id);
+    }
 }

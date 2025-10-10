@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -41,7 +42,7 @@ public class Comic {
     )
     private List<Category> category;
 
-    @OneToMany
-    private List<Chapter> chapter;
+    @OneToMany(mappedBy = "comic", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Chapter> chapter = new ArrayList<>();
 
 }

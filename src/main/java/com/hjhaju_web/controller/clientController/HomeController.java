@@ -33,6 +33,7 @@ public class HomeController {
 
 
 
+
     @GetMapping("/")
     public String listComics(Model model,
                               @RequestParam(defaultValue = "0") int page,
@@ -94,6 +95,7 @@ public class HomeController {
         model.addAttribute("comic", comic);
         model.addAttribute("chapter", chapter);
         model.addAttribute("images", images);
+//        this.comicService.saveReadingHistory();
 
         return "client/home/chapterDetail";
     }

@@ -29,8 +29,9 @@ public class Chapter {
     }
 
     @ManyToOne
+    @JoinColumn(name = "comic_id")
     private Comic comic;
 
-    @OneToMany
+    @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chapter_data> chapter_data;
 }
