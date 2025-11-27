@@ -22,6 +22,9 @@ public interface ChapterRepository extends JpaRepository<Chapter, String> {
 
     void deleteByComic(Comic comic);
 
+    List<Chapter> findTop2ByComicOrderByCreatedAtDesc(Comic comic);
+
+
     @Query("SELECT c.name FROM Chapter c WHERE c.comic = :comic ORDER BY c.createdAt ASC")
     List<String> findNameByComicOrderByCreatedAtAsc(@Param("comic") Comic comic);
 

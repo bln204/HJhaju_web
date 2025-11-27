@@ -6,6 +6,8 @@
     <meta charset="UTF-8">
     <title th:text="${category.name}"></title>
     <link rel="stylesheet" th:href="@{/css/homeStyle.css}">
+    <link rel="stylesheet" th:href="@{/css/searchStyle.css}">
+    <link rel="stylesheet" th:href="@{/css/login.css}">
 
     <style>
         .title {
@@ -17,8 +19,6 @@
             margin: 0 auto;
             padding: 0 20px;
             position: relative;
-            z-index: 11;
-
         }
     </style>
 </head>
@@ -45,20 +45,21 @@
 </div>
 
 
-<!--<div class="pagination" th:if="${totalPages > 0}">-->
-<!--    <a th:if="${currentPage > 0}"-->
-<!--       th:href="@{/(page=${currentPage - 1})}">«</a>-->
+<div class="pagination" th:if="${totalPages > 0}">
+    <a th:if="${currentPage > 0}"
+       th:href="@{/(page=${currentPage - 1})}">«</a>
 
-<!--    <a th:each="i : ${#numbers.sequence(0, (totalPages - 1))}"-->
-<!--       th:href="@{/(page=${i})}"-->
-<!--       th:text="${i + 1}"-->
-<!--       th:classappend="${i == currentPage} ? 'active' : ''">-->
-<!--    </a>-->
+    <a th:each="i : ${#numbers.sequence(0, (totalPages - 1))}"
+       th:href="@{/(page=${i})}"
+       th:text="${i + 1}"
+       th:classappend="${i == currentPage} ? 'active' : ''">
+    </a>
 
-<!--    <a th:if="${currentPage < (totalPages - 1)}"-->
-<!--       th:href="@{/(page=${currentPage + 1})}">»</a>-->
-<!--</div>-->
+    <a th:if="${currentPage < (totalPages - 1)}"
+       th:href="@{/(page=${currentPage + 1})}">»</a>
+</div>
 
-<script th:src="@{/js/home-poster.js}"></script>
+
+<script th:src="@{/js/search.js}"></script>
 </body>
 </html>

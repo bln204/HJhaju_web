@@ -17,17 +17,14 @@ public interface ComicRepository extends JpaRepository<Comic, String> {
 
     Optional<Comic> findById(String id);
 
-//    Comic findBySlug(String slug);
     Comic findBySlug(String slug);
 
 //    Optional<Comic> findBySlug(String Slug);
     List<Comic> findAll();
 
-    List<Comic> findByNameContainingIgnoreCase(String name);
+    Page<Comic> findByNameContainingIgnoreCase(String query, Pageable pageable);
 
-    List<Comic> findByNameContainingIgnoreCase(String query, Pageable pageable);
-
-    List<Comic> findByCategorySlug(String slug);
+    Page<Comic> findByCategorySlug(String slug, Pageable pageable);
 
     void deleteById(String id);
 }

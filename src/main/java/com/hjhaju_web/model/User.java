@@ -58,6 +58,18 @@ public class User implements UserDetails, OidcUser {
     @Transient
     private OidcUserInfo userInfo;
 
+
+
+    @Column(nullable = false)
+    private Integer coinBalance = 0;
+
+    @Column(name = "sepay_account_id")
+    private String sepayAccountId;
+
+    @Column(nullable = false)
+    private Long totalTopup = 0L;
+
+
     @Override
     public Map<String, Object> getAttributes() {
         return attributes;

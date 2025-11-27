@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Slider 3 Ảnh 1 Lần</title>
+    <title>HjHaju web</title>
     <link rel="stylesheet" th:href="@{/css/homeStyle.css}">
+    <link rel="stylesheet" th:href="@{/css/searchStyle.css}">
+    <link rel="stylesheet" th:href="@{/css/login.css}">
 </head>
 <body>
 
@@ -47,7 +49,7 @@
     <h2 class="section-title">Cập Nhật Gần Đây</h2>
     <div class="tabs">
         <a href="#" class="tab active">Tất Cả</a>
-        <a href="#" class="tab">Đã Đọc</a>
+        <a href="#" class="tab" >Đã Đọc</a>
     </div>
     <hr>
 </div>
@@ -55,16 +57,29 @@
 <div class="grid">
     <div class="card" th:each="comic : ${comics}">
         <a th:href="@{/{slug}(slug=${comic.slug})}">
+            <img th:src="${comic.thumb_image}" alt="Truyện">
+        </a>
+        <a th:href="@{/{slug}(slug=${comic.slug})}">
             <img alt="Comic Image" class="comic-cover" th:src="${#strings.startsWith(comic.thumb_image, 'http') ? comic.thumb_image : '/file-upload/' + comic.thumb_image }" >
         </a>
         <div class="info">
-            <h3 >
-                <a th:href="@{/{slug}(slug=${comic.slug})}"  th:text="${comic.name}" > </a>
+            <h3>
+                <a th:href="@{/{slug}(slug=${comic.slug})}" th:text="${comic.name}"></a>
             </h3>
+
             <div class="meta">
-                👁 <span>1000</span> | 👍 <span>500</span> <br>
-<!--                ⏰ <span th:text="${comic.chapter}"></span>-->
-<!--                <span th:text="${comic.createdAt}"></span>-->
+                <div class="stats">
+                    <span class="stat-badge">👁 <span>1000</span></span>
+                    <span class="stat-badge">👍 <span>500</span></span>
+                </div>
+
+                <div class="chapters" >
+                    <a class="chapter-item" th:each="chapter : ${comic.latestChapters}" th:href="@{/{slug}/chuong-{name}(slug=${comic.slug}, name=${chapter.name})}">
+                        <span class="chapter-name" th:text="${chapter.name}"></span>
+                        <span class="chapter-time" th:text="${chapter.timeAgo}"></span>
+                    </a>
+                </div>
+
             </div>
         </div>
     </div>
@@ -84,6 +99,13 @@
        th:href="@{/(page=${currentPage + 1})}">»</a>
 </div>
 
+<hr>
+
+
+
+
+
+<script th:src="@{/js/search.js}"></script>
 <script th:src="@{/js/home-poster.js}"></script>
 </body>
 </html>
