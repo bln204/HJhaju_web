@@ -1,0 +1,369 @@
+
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${comic.name} ?: 'Chi tiết truyện'">Chi tiết truyện</title>
+    <link rel="stylesheet" th:href="@{/css/comicDetailStyle.css}">
+    <link rel="stylesheet" th:href="@{/css/homeStyle.css}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        .comment-item { margin-bottom: 20px; padding: 10px; border-bottom: 1px solid #ddd; }
+        .replies { margin-left: 20px; margin-top: 10px; }
+        .reply-item { margin-bottom: 10px; padding: 8px; border-left: 2px solid #007bff; }
+        .reply-btn { color: #007bff; cursor: pointer; margin-top: 5px; background: none; border: none; }
+        .reply-form { margin-top: 10px; display: none; }
+        .form-control { width: 100%; padding: 8px; margin-bottom: 10px; }
+        .btn-primary { background-color: #007bff; color: white; padding: 8px 16px; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div th:replace="~{client/layout/header :: header}"></div>
+
+<!-- Thanh điều hướng -->
+<div class="breadcrumb">
+    <a href="/" class="home-link">Trang Chủ</a> /
+    <span class="comic-title" th:text="${comic.name} ?: 'Truyện'"></span>
+</div>
+
+<div class="comic-detail">
+    <!-- Thông tin chính -->
+    <div class="main-info">
+        <div class="left">
+            <img th:src="${comic.thumb_image} ?: 'https://via.placeholder.com/150'" alt="Comic Image" class="comic-cover">
+        </div>
+        <div class="center">
+            <h1 class="title" th:text="${comic.name} ?: 'Truyện'"></h1>
+            <p class="description" th:text="${comic.description} ?: 'Chưa có mô tả'"></p>
+            <div class="rating">
+                ⭐⭐⭐⭐⭐ <span>5</span>
+                <span class="count">(<span>12</span> đánh giá)</span>
+            </div>
+            <div class="chapters-count">
+                <span th:text="${comic.chapter?.size()} ?: 0">0</span> Chap
+            </div>
+            <div class="actions">
+                <a th:href="@{/${comic.slug}/chuong-${comic.chapter[0]?.name}(slug=${comic.slug}, name=${comic.chapter[0]?.name})}"
+                   class="btn yellow" th:if="${comic.chapter != null and not #lists.isEmpty(comic.chapter)}">📖 Đọc ngay</a>
+                <button class="btn purple">⭐ Theo dõi</button>
+                <button class="btn white">🔔 Thông báo</button>
+            </div>
+        </div>
+        <div class="right">
+            <p><span class="label">Tác giả:</span> <span class="value" th:text="${comic.author} ?: 'Đang cập nhật'"></span></p>
+            <p><span class="label">Nhóm dịch:</span> <span class="value">Đang cập nhật</span></p>
+            <p><span class="label">Trạng thái:</span> <span class="value" th:text="${comic.status} ?: 'Đang tiến hành'"></span></p>
+            <p><span class="label">Thể loại:</span>
+                <span th:each="cat, iter : ${comic.category}">
+                    <span class="value" th:text="${cat.name}"></span><span th:if="${!iter.last}">, </span>
+                </span>
+                <span th:unless="${comic.category != null and not #lists.isEmpty(comic.category)}">Chưa có thể loại</span>
+            </p>
+            <p><span class="label">Lượt xem:</span> <span class="value">0</span></p>
+            <p><span class="label">Lượt theo dõi:</span> <span class="value">0</span></p>
+        </div>
+    </div>
+
+    <div class="content-section">
+        <div class="chapters-list">
+            <h2>Danh sách chương</h2>
+            <table>
+                <thead>
+                <tr>
+                    <th>Số chương</th>
+                    <th>Cập nhật</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="chapter, iter : ${comic.chapter}" th:classappend="${iter.index} >= 10 ? 'hidden' : ''">
+                    <td colspan="2" class="chapter-row">
+                        <a th:href="@{/{slug}/chuong-{name}(slug=${comic.slug}, name=${chapter.name})}" class="chapter-link">
+                            <span class="chapter-name">Chương <span th:text="${chapter.name}"></span></span>
+                            <span class="chapter-time" th:text="${#temporals.format(chapter.createdAt, 'dd/MM/yyyy HH:mm')} ?: '45 ngày trước'"></span>
+                        </a>
+                    </td>
+                </tr>
+                <tr th:unless="${comic.chapter != null and not #lists.isEmpty(comic.chapter)}">
+                    <td colspan="2">Chưa có chương nào.</td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="see-more-container" th:if="${comic.chapter?.size()} > 10">
+                <button id="seeMoreBtn">Hiện Tất Cả</button>
+            </div>
+        </div>
+
+        <div class="comments-section">
+            <h2>Bình luận</h2>
+            <div class="comment-form" th:if="${#authentication.authenticated}">
+                <textarea id="commentInput" placeholder="Viết bình luận..." class="form-control"></textarea>
+                <button id="submitComment" class="btn btn-primary mt-2">Gửi</button>
+                <div id="commentError" style="color: red; display: none; margin-top: 10px;"></div>
+            </div>
+            <div class="comment-form" th:unless="${#authentication.authenticated}">
+                <p>Vui lòng <a th:href="@{/login}">đăng nhập</a> để bình luận.</p>
+            </div>
+            <div class="comments-box" id="commentsBox">
+                <div th:each="comment : ${comments}" class="comment-item" th:data-comment-id="${comment.id}">
+                    <div class="comment-user" th:text="${comment.user.fullName} ?: 'Người dùng'"></div>
+                    <div class="comment-content" th:text="${comment.content}"></div>
+                    <div class="comment-time" th:text="${#temporals.format(comment.createdAt, 'dd/MM/yyyy HH:mm')}"></div>
+                    <div class="replies">
+                        <div th:each="reply : ${comment.replies}" class="reply-item">
+                            <div class="reply-user" th:text="${reply.user.fullName} ?: 'Người dùng'"></div>
+                            <div class="reply-content" th:text="${reply.content}"></div>
+                            <div class="reply-time" th:text="${#temporals.format(reply.createdAt, 'dd/MM/yyyy HH:mm')}"></div>
+                        </div>
+                    </div>
+                    <button class="reply-btn" th:data-comment-id="${comment.id}">Trả lời</button>
+                    <div class="reply-form" th:id="'replyForm' + ${comment.id}" style="display: none;">
+                        <textarea th:id="'replyInput' + ${comment.id}" placeholder="Viết trả lời..." class="form-control"></textarea>
+                        <button class="btn btn-primary mt-2" th:onclick="'submitReply(' + ${comment.id} + ')'">Gửi trả lời</button>
+                    </div>
+                </div>
+                <div th:unless="${comments != null and not #lists.isEmpty(comments)}" class="no-comments">Chưa có bình luận nào.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    console.log('Script loaded');
+    var comicId = [[${comic.id}]] ? [[${comic.id}]] : null;
+    console.log('comic.id:', comicId);
+    console.log('authenticated:', [[${#authentication.authenticated}]]);
+    var stompClient = null;
+    var isConnecting = false;
+    var maxRetries = 5;
+    var retryCount = 0;
+
+    function connectWebSocket(callback) {
+        if (stompClient && stompClient.connected) {
+            console.log('WebSocket already connected');
+            callback();
+            return;
+        }
+        if (isConnecting) {
+            console.log('WebSocket connection in progress');
+            if (retryCount < maxRetries) {
+                retryCount++;
+                setTimeout(() => connectWebSocket(callback), 500);
+            } else {
+                console.error('Max WebSocket connection retries reached');
+                var errorDiv = document.getElementById('commentError');
+                if (errorDiv) {
+                    errorDiv.innerText = 'Không thể kết nối với server sau nhiều lần thử. Vui lòng thử lại sau.';
+                    errorDiv.style.display = 'block';
+                }
+                isConnecting = false;
+                retryCount = 0;
+            }
+            return;
+        }
+        console.log('Attempting to connect WebSocket, comic.id: ' + comicId);
+        if (!comicId) {
+            console.error('Error: comic.id is undefined or null');
+            var errorDiv = document.getElementById('commentError');
+            if (errorDiv) {
+                errorDiv.innerText = 'Không thể kết nối do lỗi dữ liệu truyện.';
+                errorDiv.style.display = 'block';
+            }
+            isConnecting = false;
+            return;
+        }
+        isConnecting = true;
+        retryCount++;
+        var socket;
+        try {
+            socket = new SockJS('http://localhost:8080/ws');
+        } catch (e) {
+            console.error('Error creating SockJS: ' + e);
+            isConnecting = false;
+            retryCount = 0;
+            var errorDiv = document.getElementById('commentError');
+            if (errorDiv) {
+                errorDiv.innerText = 'Lỗi khi khởi tạo kết nối WebSocket. Vui lòng thử lại.';
+                errorDiv.style.display = 'block';
+            }
+            return;
+        }
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function(frame) {
+            isConnecting = false;
+            retryCount = 0;
+            console.log('WebSocket Connected: ' + frame);
+            stompClient.subscribe('/topic/comic/' + comicId + '/comments', function(comment) {
+                console.log('Received comment: ', JSON.parse(comment.body));
+                var commentData = JSON.parse(comment.body);
+                console.log('Comment parentId: ', commentData.parentId);
+                var commentsBox = document.getElementById('commentsBox');
+                var noComments = commentsBox.querySelector('.no-comments');
+                if (noComments) {
+                    noComments.remove();
+                }
+
+                if (commentData.parentId) {
+                    console.log('Processing reply for parentId: ', commentData.parentId);
+                    var parentComment = document.querySelector(`.comment-item[data-comment-id="${commentData.parentId}"]`);
+                    if (parentComment) {
+                        console.log('Parent comment found, appending reply');
+                        var repliesContainer = parentComment.querySelector('.replies');
+                        var replyItem = document.createElement('div');
+                        replyItem.className = 'reply-item';
+                        replyItem.innerHTML = `
+                            <div class="reply-user">${commentData.user.fullName || 'Người dùng'}</div>
+                            <div class="reply-content">${commentData.content}</div>
+                            <div class="reply-time">${new Date(commentData.createdAt).toLocaleString('vi-VN')}</div>
+                        `;
+                        repliesContainer.appendChild(replyItem);
+                    } else {
+                        console.warn(`Parent comment with id ${commentData.parentId} not found in DOM`);
+                    }
+                } else {
+                    console.log('Processing new comment');
+                    var commentItem = document.createElement('div');
+                    commentItem.className = 'comment-item';
+                    commentItem.setAttribute('data-comment-id', commentData.id);
+                    commentItem.innerHTML = `
+                        <div class="comment-user">${commentData.user.fullName || 'Người dùng'}</div>
+                        <div class="comment-content">${commentData.content}</div>
+                        <div class="comment-time">${new Date(commentData.createdAt).toLocaleString('vi-VN')}</div>
+                        <div class="replies"></div>
+                        <button class="reply-btn" data-comment-id="${commentData.id}">Trả lời</button>
+                        <div class="reply-form" id="replyForm${commentData.id}" style="display: none;">
+                            <textarea id="replyInput${commentData.id}" placeholder="Viết trả lời..." class="form-control"></textarea>
+                            <button class="btn btn-primary mt-2" onclick="submitReply(${commentData.id})">Gửi trả lời</button>
+                        </div>
+                    `;
+                    commentsBox.insertBefore(commentItem, commentsBox.firstChild);
+                }
+            });
+            callback();
+        }, function(error) {
+            isConnecting = false;
+            console.error('WebSocket Error: ' + error);
+            var errorDiv = document.getElementById('commentError');
+            if (errorDiv) {
+                errorDiv.innerText = 'Không thể kết nối với server. Vui lòng thử lại.';
+                errorDiv.style.display = 'block';
+            }
+            if (retryCount < maxRetries) {
+                console.log('Retrying WebSocket connection, attempt: ' + retryCount);
+                setTimeout(() => connectWebSocket(callback), 500);
+            } else {
+                console.error('Max WebSocket connection retries reached');
+                errorDiv.innerText = 'Không thể kết nối với server sau nhiều lần thử. Vui lòng thử lại sau.';
+                errorDiv.style.display = 'block';
+                retryCount = 0;
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOMContentLoaded event triggered');
+        var submitCommentBtn = document.getElementById('submitComment');
+        console.log('submitCommentBtn:', submitCommentBtn);
+        if (submitCommentBtn) {
+            submitCommentBtn.addEventListener('click', function() {
+                console.log('Submit comment button clicked');
+                var content = document.getElementById('commentInput').value.trim();
+                var errorDiv = document.getElementById('commentError');
+                if (!content) {
+                    if (errorDiv) {
+                        errorDiv.innerText = 'Vui lòng nhập nội dung bình luận.';
+                        errorDiv.style.display = 'block';
+                    }
+                    console.log('Empty comment content');
+                    return;
+                }
+                if (errorDiv) errorDiv.style.display = 'none';
+                connectWebSocket(function() {
+                    if (!stompClient || !stompClient.connected) {
+                        if (errorDiv) {
+                            errorDiv.innerText = 'Không thể kết nối với server. Vui lòng thử lại.';
+                            errorDiv.style.display = 'block';
+                        }
+                        console.log('WebSocket not connected');
+                        return;
+                    }
+                    console.log('Sending comment: ' + content);
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang gửi...';
+                    this.disabled = true;
+                    stompClient.send("/app/comic/" + comicId + "/comment", {}, JSON.stringify({ content: content }));
+                    document.getElementById('commentInput').value = '';
+                    setTimeout(() => {
+                        this.innerHTML = 'Gửi';
+                        this.disabled = false;
+                    }, 1000);
+                }.bind(this));
+            });
+        } else {
+            console.error('submitCommentBtn not found');
+        }
+
+        var commentInput = document.getElementById('commentInput');
+        console.log('commentInput:', commentInput);
+        if (commentInput) {
+            commentInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    console.log('Enter key pressed in commentInput');
+                    e.preventDefault();
+                    submitCommentBtn.click();
+                }
+            });
+        } else {
+            console.error('commentInput not found');
+        }
+
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('reply-btn')) {
+                var commentId = e.target.getAttribute('data-comment-id');
+                console.log('Reply button clicked for commentId: ' + commentId);
+                var replyForm = document.getElementById('replyForm' + commentId);
+                if (replyForm) {
+                    replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+                    if (replyForm.style.display === 'block') {
+                        document.getElementById('replyInput' + commentId).focus();
+                    }
+                }
+            }
+        });
+
+        window.submitReply = function(commentId) {
+            var replyInput = document.getElementById('replyInput' + commentId);
+            var content = replyInput.value.trim();
+            var errorDiv = document.getElementById('commentError');
+            if (!content) {
+                if (errorDiv) {
+                    errorDiv.innerText = 'Vui lòng nhập nội dung trả lời.';
+                    errorDiv.style.display = 'block';
+                }
+                console.log('Empty reply content');
+                return;
+            }
+            if (errorDiv) errorDiv.style.display = 'none';
+            connectWebSocket(function() {
+                if (!stompClient || !stompClient.connected) {
+                    if (errorDiv) {
+                        errorDiv.innerText = 'Không thể kết nối với server. Vui lòng thử lại.';
+                        errorDiv.style.display = 'block';
+                    }
+                    console.log('WebSocket not connected');
+                    return;
+                }
+                console.log('Sending reply for commentId: ' + commentId + ', content: ' + content);
+                var replyBtn = document.querySelector(`#replyForm${commentId} .btn-primary`);
+                replyBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang gửi...';
+                replyBtn.disabled = true;
+                stompClient.send("/app/comic/" + comicId + "/comment", {}, JSON.stringify({ content: content, parentId: commentId }));
+                replyInput.value = '';
+                replyBtn.innerHTML = 'Gửi trả lời';
+                replyBtn.disabled = false;
+                document.getElementById('replyForm' + commentId).style.display = 'none';
+            });
+        };
+    });
+</script>
+</body>
+</html>
